@@ -1,6 +1,9 @@
 'use strict';
 
 const STORAGE_KEY = 'qingye.savedTabs';
+const SESSION_KEY = 'qingye.lastSession';
+const MAX_GROUP_TABS = 4;
+const MAX_SAVED_ITEMS = 6;
 
 async function getAllTabs() {
   const tabs = await chrome.tabs.query({});
@@ -35,12 +38,16 @@ function groupTabs(tabs) {
     map.get(hostname).push(tab);
   }
   return [...map.entries()]
-    .map(([hostname, items]) => ({ hostname, items }))
+    .map(([hostname, items]) => ({
+      hostname,
+      items,
+      hiddenCount: Math.max(items.length - MAX_GROUP_TABS, 0)
+    }))
     .sort((a, b) => b.items.length - a.items.length || a.hostname.localeCompare(b.hostname, 'zh-CN'));
 }
 
 async function getSavedTabs() {
-  const result = await chrome.storage.local.get(STORAGE_KEY);
+  const result = await chrome.storage.local.get([STORAGE_KEY]);
   return Array.isArray(result[STORAGE_KEY]) ? result[STORAGE_KEY] : [];
 }
 
@@ -94,7 +101,21 @@ function updateStats(totalTabs, groups, saved) {
   document.getElementById('totalTabs').textContent = String(totalTabs);
   document.getElementById('totalGroups').textContent = String(groups);
   document.getElementById('savedCount').textContent = String(saved);
-  document.getElementById('groupHint').textContent = `共 ${groups} 组，先从最大的开始砍。`;
+  document.getElementById('groupHint').textContent = `共 ${groups} 组，默认每组只露 ${MAX_GROUP_TABS} 个。`;
+  document.getElementById('savedHint').textContent = saved > MAX_SAVED_ITEMS ? `仅展示前 ${MAX_SAVED_ITEMS} 条` : '';
+
+  const focusSummary = document.getElementById('focusSummary');
+  if (!focusSummary) return;
+
+  if (totalTabs === 0) {
+    focusSummary.textContent = '空了。挺好。';
+  } else if (totalTabs <= 12) {
+    focusSummary.textContent = '还算克制。';
+  } else if (totalTabs <= 24) {
+    focusSummary.textContent = '开始臃肿了。';
+  } else {
+    focusSummary.textContent = '标签已经失控。';
+  }
 }
 
 async function renderSaved() {
@@ -102,6 +123,7 @@ async function renderSaved() {
   const empty = document.getElementById('savedEmpty');
   const template = document.getElementById('savedTemplate');
   const items = await getSavedTabs();
+  const visibleItems = items.slice(0, MAX_SAVED_ITEMS);
 
   list.innerHTML = '';
   if (!items.length) {
@@ -110,7 +132,7 @@ async function renderSaved() {
   }
 
   empty.style.display = 'none';
-  for (const item of items) {
+  for (const item of visibleItems) {
     const node = template.content.firstElementChild.cloneNode(true);
     const link = node.querySelector('.saved-link');
     link.href = item.url;
@@ -137,7 +159,9 @@ async function renderGroups(tabs) {
   for (const group of groups) {
     const node = groupTemplate.content.firstElementChild.cloneNode(true);
     node.querySelector('.group-title').textContent = group.hostname;
-    node.querySelector('.group-meta').textContent = `${group.items.length} 个标签`;
+    node.querySelector('.group-meta').textContent = group.hiddenCount > 0
+      ? `${group.items.length} 个标签 · 收起 ${group.hiddenCount} 个`
+      : `${group.items.length} 个标签`;
 
     node.querySelector('.close-group-btn').addEventListener('click', async () => {
       await closeTabs(group.items.map((item) => item.id));
@@ -145,7 +169,7 @@ async function renderGroups(tabs) {
     });
 
     const list = node.querySelector('.tab-list');
-    for (const tab of group.items) {
+    for (const tab of group.items.slice(0, MAX_GROUP_TABS)) {
       const tabNode = tabTemplate.content.firstElementChild.cloneNode(true);
       tabNode.querySelector('.tab-title').textContent = cleanTitle(tab.title, tab.url);
       tabNode.querySelector('.tab-url').textContent = shortUrl(tab.url);
@@ -161,6 +185,13 @@ async function renderGroups(tabs) {
         await render();
       });
       list.appendChild(tabNode);
+    }
+
+    if (group.hiddenCount > 0) {
+      const more = document.createElement('div');
+      more.className = 'group-more';
+      more.textContent = `还有 ${group.hiddenCount} 个没展开。故意的，不然你又开始下滚。`;
+      list.appendChild(more);
     }
 
     groupsWrap.appendChild(node);
@@ -191,6 +222,28 @@ async function closeAllWebTabs() {
   await closeTabs(tabs.map((tab) => tab.id));
 }
 
+async function saveCurrentSession() {
+  const tabs = await getAllTabs();
+  const payload = tabs.map((tab) => ({ title: tab.title || tab.url, url: tab.url }));
+  await chrome.storage.local.set({
+    [SESSION_KEY]: {
+      savedAt: new Date().toISOString(),
+      tabs: payload
+    }
+  });
+}
+
+async function restoreLastSession() {
+  const result = await chrome.storage.local.get([SESSION_KEY]);
+  const session = result[SESSION_KEY];
+  if (!session || !Array.isArray(session.tabs) || !session.tabs.length) return;
+
+  for (const item of session.tabs) {
+    if (!item?.url) continue;
+    await chrome.tabs.create({ url: item.url, active: false });
+  }
+}
+
 async function render() {
   const tabs = await getAllTabs();
   const [groups, saved] = await Promise.all([
@@ -201,6 +254,14 @@ async function render() {
 }
 
 document.getElementById('refreshBtn').addEventListener('click', render);
+document.getElementById('saveSessionBtn').addEventListener('click', async () => {
+  await saveCurrentSession();
+  await render();
+});
+document.getElementById('restoreSessionBtn').addEventListener('click', async () => {
+  await restoreLastSession();
+  await render();
+});
 document.getElementById('closeDuplicatesBtn').addEventListener('click', async () => {
   await closeDuplicateTabs();
   await render();

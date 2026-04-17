@@ -8,32 +8,37 @@
 </head>
 <body>
   <main class="app">
-    <header class="hero">
-      <div>
+    <header class="hero compact-hero">
+      <div class="hero-main">
         <div class="eyebrow">清页 · QingYe</div>
-        <h1>把散落的标签页，收拾成能看的样子。</h1>
-        <p class="subtitle">新标签页打开的不是空白，而是你当前注意力的地图。</p>
+        <h1>一页看完，顺手清掉。</h1>
+        <p class="subtitle">别把新标签页做成第二个垃圾场。大的先砍，重复的先删，想留的再存。</p>
       </div>
-      <div class="hero-stats">
-        <div class="stat-card">
-          <div class="stat-num" id="totalTabs">—</div>
-          <div class="stat-label">打开标签</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num" id="totalGroups">—</div>
-          <div class="stat-label">站点分组</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num" id="savedCount">—</div>
-          <div class="stat-label">稍后处理</div>
+      <div class="hero-side">
+        <div class="hero-stats compact-stats">
+          <div class="stat-card">
+            <div class="stat-num" id="totalTabs">—</div>
+            <div class="stat-label">标签</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="totalGroups">—</div>
+            <div class="stat-label">分组</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="savedCount">—</div>
+            <div class="stat-label">暂存</div>
+          </div>
+          <div class="stat-card stat-card-text" id="focusSummary">准备清理。</div>
         </div>
       </div>
     </header>
 
-    <section class="toolbar">
+    <section class="toolbar compact-toolbar">
       <button class="btn btn-primary" id="refreshBtn">刷新</button>
-      <button class="btn" id="closeDuplicatesBtn">清理重复标签</button>
-      <button class="btn" id="closeAllBtn">关闭全部网页标签</button>
+      <button class="btn" id="saveSessionBtn">保存当前会话</button>
+      <button class="btn" id="restoreSessionBtn">恢复最近会话</button>
+      <button class="btn" id="closeDuplicatesBtn">去重</button>
+      <button class="btn" id="closeAllBtn">全部关闭</button>
     </section>
 
     <section class="layout">
@@ -42,12 +47,13 @@
           <h2>当前标签</h2>
           <span id="groupHint"></span>
         </div>
-        <div id="groups" class="groups"></div>
+        <div id="groups" class="groups groups-grid"></div>
       </section>
 
-      <aside class="panel side-panel">
+      <aside class="panel side-panel compact-side-panel">
         <div class="panel-head">
           <h2>稍后处理</h2>
+          <span id="savedHint"></span>
         </div>
         <div id="savedList" class="saved-list"></div>
         <div id="savedEmpty" class="empty">还没有保存的标签。先活着，别囤太多。</div>
