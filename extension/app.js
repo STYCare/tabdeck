@@ -105,7 +105,6 @@ let currentLang = 'zh';
 let t = DICTS.zh;
 let currentKeepOnlyGroup = null;
 const CURRENT_NEW_TAB_URL = chrome.runtime.getURL('index.html');
-const CURRENT_PAGE_URL = window.location.href;
 
 function detectLang() {
   const lang = (chrome.i18n?.getUILanguage?.() || navigator.language || 'zh').toLowerCase();
@@ -254,21 +253,13 @@ function groupTabs(tabs) {
 }
 
 async function getDuplicateNewTabPages() {
+  const extensionId = chrome.runtime.id;
+  const newtabUrl = `chrome-extension://${extensionId}/index.html`;
   const tabs = await chrome.tabs.query({});
-  const currentPage = new URL(CURRENT_PAGE_URL);
 
   return tabs.filter((tab) => {
     const url = tab.url || '';
-    if (!url.startsWith('chrome-extension://')) return false;
-
-    try {
-      const parsed = new URL(url);
-      return parsed.origin === currentPage.origin && parsed.pathname === currentPage.pathname;
-    } catch {
-      return url === CURRENT_NEW_TAB_URL
-        || url.startsWith(`${CURRENT_NEW_TAB_URL}#`)
-        || url.startsWith(`${CURRENT_NEW_TAB_URL}?`);
-    }
+    return url === newtabUrl || url === 'chrome://newtab/';
   });
 }
 
@@ -781,13 +772,17 @@ async function keepOnlyCurrentGroup() {
     await closeTabs(closeIds);
   }
 
-  dismissKeepOnlyBanner();
+  const remaining = await getDuplicateNewTabPages();
+  renderKeepOnlyBanner(remaining);
   await render();
 }
 
 function dismissKeepOnlyBanner() {
   currentKeepOnlyGroup = null;
-  document.getElementById('keepOnlyBanner').hidden = true;
+  const wrap = document.getElementById('keepOnlyWrap');
+  const banner = document.getElementById('keepOnlyBanner');
+  wrap.hidden = true;
+  banner.style.display = 'none';
 }
 
 async function render() {
