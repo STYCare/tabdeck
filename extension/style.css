@@ -55,21 +55,6 @@ button { cursor: pointer; }
   margin-bottom: 18px;
 }
 
-.brand-row {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  margin-bottom: 14px;
-}
-
-.brand-mark {
-  font-size: 14px;
-  line-height: 1;
-  color: var(--muted);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
 .topbar {
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) auto;

@@ -9,7 +9,7 @@ const MAX_SEARCH_RESULTS = 6;
 const GROUP_TONES = ['tone-sage', 'tone-cream', 'tone-mist'];
 const BRAND = {
   zh: '清页',
-  en: 'TabMint'
+  en: 'TabDeck'
 };
 const DEFAULT_QUICK_LINKS = [
   { name: 'Google', url: 'https://www.google.com' },
@@ -52,11 +52,10 @@ const DICTS = {
     quickLinksPrompt: '按“名称,网址”每行一条，例如\nGoogle,https://www.google.com',
     quickLinksSaved: '快捷入口已更新',
     quickLinksReset: '已恢复默认快捷入口',
-    keepOnlyPrompt: (count, domain) => `你现在开着 ${count} 个 ${domain} 标签。要只保留这一组吗？`,
-    keepOnlyAction: '关闭其余',
+    keepOnlyPrompt: (count) => `你现在开着 ${count} 个清页页面。要只保留这一个吗？`,
+    keepOnlyAction: '关闭其他清页',
     dismissPrompt: '先不管',
-    domainsCount: (count) => `${count} 个站点`,
-    tabsCount: (count) => `${count} 个标签`
+    tabsCount: (count) => `${count} 个页面`
   },
   en: {
     searchPlaceholder: 'Search open tabs, the web, or enter a URL',
@@ -91,11 +90,10 @@ const DICTS = {
     quickLinksPrompt: 'One per line as “name,url”, for example:\nGoogle,https://www.google.com',
     quickLinksSaved: 'Quick links updated',
     quickLinksReset: 'Quick links reset to defaults',
-    keepOnlyPrompt: (count, domain) => `You have ${count} ${domain} tabs open. Keep just this group?`,
-    keepOnlyAction: 'Close Extras',
+    keepOnlyPrompt: (count) => `You have ${count} TabDeck pages open. Keep just this one?`,
+    keepOnlyAction: 'Close other TabDeck pages',
     dismissPrompt: 'Not now',
-    domainsCount: (count) => `${count} domains`,
-    tabsCount: (count) => `${count} tabs`
+    tabsCount: (count) => `${count} pages`
   }
 };
 
@@ -120,7 +118,6 @@ function setLang() {
 function applyStaticTexts() {
   document.documentElement.lang = currentLang === 'zh' ? 'zh-CN' : 'en';
   document.title = BRAND[currentLang];
-  document.getElementById('brandMark').textContent = BRAND[currentLang];
   document.getElementById('searchInput').placeholder = t.searchPlaceholder;
   document.getElementById('searchSubmitBtn').textContent = t.searchButton;
   document.getElementById('currentTabsLabel').textContent = t.currentTabs;
@@ -256,27 +253,29 @@ function groupTabs(tabs) {
     .sort((a, b) => b.items.length - a.items.length || a.hostname.localeCompare(b.hostname, currentLang === 'zh' ? 'zh-CN' : 'en'));
 }
 
-function getKeepOnlyCandidate(groups) {
-  if (currentQuery.trim()) return null;
-  const eligible = groups.filter((group) => group.items.length > 1);
-  if (!eligible.length) return null;
-  return eligible[0];
+async function getDuplicateNewTabPages() {
+  const tabs = await chrome.tabs.query({});
+  return tabs.filter((tab) => {
+    const url = tab.url || '';
+    return /\/index\.html(?:[#?].*)?$/.test(url)
+      && /extension/i.test(url);
+  });
 }
 
-function renderKeepOnlyBanner(group, totalGroups, totalTabs) {
+function renderKeepOnlyBanner(duplicatePages) {
   const banner = document.getElementById('keepOnlyBanner');
   const text = document.getElementById('keepOnlyText');
   const meta = document.getElementById('keepOnlyMeta');
 
-  if (!group) {
+  if (!duplicatePages || duplicatePages.length <= 1) {
     banner.hidden = true;
     currentKeepOnlyGroup = null;
     return;
   }
 
-  currentKeepOnlyGroup = group;
-  text.textContent = t.keepOnlyPrompt(group.items.length, normalizeHostname(group.hostname));
-  meta.textContent = `${t.domainsCount(totalGroups)} · ${t.tabsCount(totalTabs)}`;
+  currentKeepOnlyGroup = duplicatePages;
+  text.textContent = t.keepOnlyPrompt(duplicatePages.length);
+  meta.textContent = t.tabsCount(duplicatePages.length);
   banner.hidden = false;
 }
 
@@ -502,8 +501,6 @@ async function renderGroups(tabs) {
   const groups = groupTabs(tabs);
   groupsWrap.innerHTML = '';
 
-  renderKeepOnlyBanner(getKeepOnlyCandidate(groups), groups.length, tabs.length);
-
   if (!groups.length && currentQuery.trim()) {
     const empty = document.createElement('div');
     empty.className = 'search-empty';
@@ -671,8 +668,13 @@ async function resetQuickLinks() {
 }
 
 async function keepOnlyCurrentGroup() {
-  if (!currentKeepOnlyGroup) return;
-  await focusGroup(currentKeepOnlyGroup);
+  if (!currentKeepOnlyGroup || currentKeepOnlyGroup.length <= 1) return;
+  const activeTab = currentKeepOnlyGroup.find((tab) => tab.active) || currentKeepOnlyGroup[0];
+  const closeIds = currentKeepOnlyGroup
+    .filter((tab) => tab.id !== activeTab.id)
+    .map((tab) => tab.id)
+    .filter(Boolean);
+  await closeTabs(closeIds);
   await render();
 }
 
@@ -686,6 +688,8 @@ async function render() {
   const filteredTabs = filterTabsByQuery(latestTabs, currentQuery);
   latestSearchMatches = getSearchMatches(latestTabs, currentQuery);
   renderSuggestions(latestSearchMatches, currentQuery);
+  const duplicatePages = await getDuplicateNewTabPages();
+  renderKeepOnlyBanner(duplicatePages);
   const [groups, saved] = await Promise.all([
     renderGroups(filteredTabs),
     renderSaved(),
