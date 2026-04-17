@@ -105,7 +105,6 @@ let currentLang = 'zh';
 let t = DICTS.zh;
 let currentKeepOnlyGroup = null;
 const CURRENT_NEW_TAB_URL = chrome.runtime.getURL('index.html');
-const CHROME_NEW_TAB_URL = 'chrome://newtab/';
 
 function detectLang() {
   const lang = (chrome.i18n?.getUILanguage?.() || navigator.language || 'zh').toLowerCase();
@@ -259,8 +258,7 @@ async function getDuplicateNewTabPages() {
     const url = tab.url || '';
     return url === CURRENT_NEW_TAB_URL
       || url.startsWith(`${CURRENT_NEW_TAB_URL}#`)
-      || url.startsWith(`${CURRENT_NEW_TAB_URL}?`)
-      || url === CHROME_NEW_TAB_URL;
+      || url.startsWith(`${CURRENT_NEW_TAB_URL}?`);
   });
 }
 
