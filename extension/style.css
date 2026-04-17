@@ -57,16 +57,16 @@ button { cursor: pointer; }
 
 .topbar {
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) auto;
-  gap: 14px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
   align-items: center;
 }
 
 .searchbar {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(260px, 1fr) auto;
   gap: 8px;
-  align-items: start;
+  align-items: center;
 }
 
 .searchbox {
@@ -76,11 +76,12 @@ button { cursor: pointer; }
 .searchbar input {
   width: 100%;
   min-width: 0;
+  height: 38px;
   border: 1px solid rgba(219, 205, 193, 0.72);
   background: rgba(255,255,255,0.56);
   color: var(--text-strong);
   border-radius: 10px;
-  padding: 11px 14px;
+  padding: 0 14px;
   outline: none;
 }
 
@@ -191,12 +192,13 @@ mark {
   justify-content: space-between;
   align-items: center;
   gap: 14px;
-  padding: 14px 16px;
+  padding: 10px 14px;
   margin: 0 0 16px;
   border: 1px solid rgba(219, 205, 193, 0.72);
   border-radius: 14px;
   background: rgba(247, 241, 234, 0.82);
   box-shadow: var(--shadow-card);
+  min-height: 56px;
 }
 
 .keep-only-copy {
@@ -206,11 +208,11 @@ mark {
 .keep-only-text {
   font-size: 13px;
   color: var(--text-strong);
-  line-height: 1.45;
+  line-height: 1.35;
 }
 
 .keep-only-meta {
-  margin-top: 4px;
+  margin-top: 2px;
   font-size: 11px;
   color: var(--muted);
 }
@@ -270,6 +272,10 @@ mark {
 .btn-small {
   padding: 7px 10px;
   font-size: 12px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-primary {

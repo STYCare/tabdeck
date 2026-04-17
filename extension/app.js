@@ -104,6 +104,7 @@ let activeSuggestionIndex = -1;
 let currentLang = 'zh';
 let t = DICTS.zh;
 let currentKeepOnlyGroup = null;
+const CURRENT_NEW_TAB_URL = chrome.runtime.getURL('index.html');
 
 function detectLang() {
   const lang = (chrome.i18n?.getUILanguage?.() || navigator.language || 'zh').toLowerCase();
@@ -257,8 +258,7 @@ async function getDuplicateNewTabPages() {
   const tabs = await chrome.tabs.query({});
   return tabs.filter((tab) => {
     const url = tab.url || '';
-    return /\/index\.html(?:[#?].*)?$/.test(url)
-      && /extension/i.test(url);
+    return url === CURRENT_NEW_TAB_URL || url.startsWith(`${CURRENT_NEW_TAB_URL}#`) || url.startsWith(`${CURRENT_NEW_TAB_URL}?`);
   });
 }
 
@@ -669,12 +669,20 @@ async function resetQuickLinks() {
 
 async function keepOnlyCurrentGroup() {
   if (!currentKeepOnlyGroup || currentKeepOnlyGroup.length <= 1) return;
-  const activeTab = currentKeepOnlyGroup.find((tab) => tab.active) || currentKeepOnlyGroup[0];
+
+  const currentTabList = await chrome.tabs.query({ active: true, currentWindow: true });
+  const currentTab = currentTabList[0];
+  const keepTab = currentKeepOnlyGroup.find((tab) => tab.id === currentTab?.id)
+    || currentKeepOnlyGroup.find((tab) => tab.active)
+    || currentKeepOnlyGroup[0];
+
   const closeIds = currentKeepOnlyGroup
-    .filter((tab) => tab.id !== activeTab.id)
+    .filter((tab) => tab.id !== keepTab.id)
     .map((tab) => tab.id)
     .filter(Boolean);
+
   await closeTabs(closeIds);
+  dismissKeepOnlyBanner();
   await render();
 }
 
