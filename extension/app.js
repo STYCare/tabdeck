@@ -54,7 +54,6 @@ const DICTS = {
     quickLinksReset: '已恢复默认快捷入口',
     keepOnlyPrompt: (count) => `你现在开着 ${count} 个清页页面。要只保留这一个吗？`,
     keepOnlyAction: '关闭其他清页',
-    dismissPrompt: '先不管',
     tabsCount: (count) => `${count} 个页面`
   },
   en: {
@@ -92,7 +91,6 @@ const DICTS = {
     quickLinksReset: 'Quick links reset to defaults',
     keepOnlyPrompt: (count) => `You have ${count} TabDeck pages open. Keep just this one?`,
     keepOnlyAction: 'Close other TabDeck pages',
-    dismissPrompt: 'Not now',
     tabsCount: (count) => `${count} pages`
   }
 };
@@ -135,7 +133,6 @@ function applyStaticTexts() {
   document.getElementById('editQuickLinksBtn').textContent = t.editQuickLinks;
   document.getElementById('resetQuickLinksBtn').textContent = t.resetQuickLinks;
   document.getElementById('keepOnlyActionBtn').textContent = t.keepOnlyAction;
-  document.getElementById('dismissPromptBtn').textContent = t.dismissPrompt;
 }
 
 async function getAllTabs() {
@@ -780,7 +777,6 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
 document.getElementById('editQuickLinksBtn').addEventListener('click', promptEditQuickLinks);
 document.getElementById('resetQuickLinksBtn').addEventListener('click', resetQuickLinks);
 document.getElementById('keepOnlyActionBtn').addEventListener('click', keepOnlyCurrentGroup);
-document.getElementById('dismissPromptBtn').addEventListener('click', dismissKeepOnlyBanner);
 document.getElementById('saveSessionBtn').addEventListener('click', async () => {
   await saveCurrentSession();
   await render();

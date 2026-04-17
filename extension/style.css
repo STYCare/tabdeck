@@ -188,17 +188,18 @@ mark {
 }
 
 .keep-only-banner {
-  display: flex;
+  display: inline-flex;
   justify-content: space-between;
   align-items: center;
-  gap: 14px;
-  padding: 10px 14px;
-  margin: 0 0 16px;
+  gap: 12px;
+  padding: 8px 12px;
+  margin: 0 0 14px;
   border: 1px solid rgba(219, 205, 193, 0.72);
-  border-radius: 14px;
-  background: rgba(247, 241, 234, 0.82);
+  border-radius: 999px;
+  background: rgba(247, 241, 234, 0.9);
   box-shadow: var(--shadow-card);
-  min-height: 56px;
+  min-height: 44px;
+  max-width: min(720px, 100%);
 }
 
 .keep-only-copy {
@@ -206,14 +207,14 @@ mark {
 }
 
 .keep-only-text {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-strong);
-  line-height: 1.35;
+  line-height: 1.25;
 }
 
 .keep-only-meta {
-  margin-top: 2px;
-  font-size: 11px;
+  margin-top: 1px;
+  font-size: 10px;
   color: var(--muted);
 }
 
@@ -531,7 +532,6 @@ mark {
 }
 
 @media (max-width: 760px) {
-  .keep-only-banner,
   .zara-toolbar,
   .saved-strip-head,
   .tab-item,
@@ -539,6 +539,13 @@ mark {
   .searchbar {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .keep-only-banner {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+    border-radius: 14px;
   }
 
   .tab-row {
