@@ -79,6 +79,7 @@ button { cursor: pointer; }
   border-radius: 999px;
   padding: 0;
   line-height: 1;
+  font-size: 16px;
 }
 
 .toolbar-icon-btn:hover {
@@ -104,6 +105,7 @@ button { cursor: pointer; }
   align-items: center;
   justify-content: center;
   line-height: 1;
+  font-size: 14px;
 }
 
 .icon-only-btn:hover {
@@ -265,13 +267,13 @@ mark {
 }
 
 .quick-link-favicon {
-  width: 16px;
-  height: 16px;
+  width: 17px;
+  height: 17px;
   object-fit: contain;
 }
 
 .quick-link-fallback {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   line-height: 1;
 }
@@ -326,21 +328,21 @@ mark {
 .keep-only-wrap {
   display: flex;
   justify-content: center;
-  margin: 0 0 14px;
+  margin: 0 0 10px;
 }
 
 .keep-only-banner {
   display: inline-flex;
   justify-content: space-between;
   align-items: center;
-  gap: 10px;
-  padding: 6px 10px;
-  border: 1px solid rgba(219, 205, 193, 0.72);
+  gap: 8px;
+  padding: 4px 8px;
+  border: 1px solid rgba(219, 205, 193, 0.58);
   border-radius: 999px;
-  background: rgba(247, 241, 234, 0.92);
-  box-shadow: var(--shadow-card);
-  min-height: 38px;
-  max-width: min(520px, 100%);
+  background: rgba(250, 245, 239, 0.7);
+  box-shadow: none;
+  min-height: 32px;
+  max-width: min(430px, 100%);
 }
 
 .keep-only-copy {
@@ -348,22 +350,29 @@ mark {
 }
 
 .keep-only-text {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-strong);
   line-height: 1.2;
 }
 
 .keep-only-meta {
   margin-top: 1px;
-  font-size: 10px;
+  font-size: 9px;
   color: var(--muted);
 }
 
 .keep-only-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
+}
+
+.keep-only-actions .btn {
+  height: 26px;
+  padding: 0 10px;
+  font-size: 11px;
+  border-radius: 999px;
 }
 
 .zara-toolbar {
