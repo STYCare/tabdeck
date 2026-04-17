@@ -737,6 +737,77 @@ async function closeAllWebTabs() {
   await closeTabs(tabs.map((tab) => tab.id));
 }
 
+function summarizeSessionTabs(tabs, maxItems = 5) {
+  const items = tabs.slice(0, maxItems).map((tab) => `- ${cleanTitle(tab.title, tab.url)}`);
+  if (tabs.length > maxItems) items.push(`- …以及另外 ${tabs.length - maxItems} 个`);
+  return items.join('\n');
+}
+
+async function confirmSaveSession() {
+  const tabs = await getAllTabs();
+  if (!tabs.length) {
+    window.alert(currentLang === 'zh' ? '当前没有可保存的标签。' : 'There are no tabs to save right now.');
+    return false;
+  }
+
+  const message = currentLang === 'zh'
+    ? `将把当前 ${tabs.length} 个标签保存到本地的“已保存会话”（chrome.storage.local）中。\n\n保存内容示例：\n${summarizeSessionTabs(tabs)}\n\n确定继续吗？`
+    : `This will save ${tabs.length} current tabs into the local saved session (chrome.storage.local).\n\nPreview:\n${summarizeSessionTabs(tabs)}\n\nContinue?`;
+  return window.confirm(message);
+}
+
+async function confirmRestoreSession() {
+  const result = await chrome.storage.local.get([SESSION_KEY]);
+  const session = result[SESSION_KEY];
+  if (!session || !Array.isArray(session.tabs) || !session.tabs.length) {
+    window.alert(currentLang === 'zh' ? '还没有已保存会话可恢复。' : 'There is no saved session to restore.');
+    return false;
+  }
+
+  const message = currentLang === 'zh'
+    ? `将恢复上次保存的 ${session.tabs.length} 个标签。\n\n将要恢复：\n${summarizeSessionTabs(session.tabs)}\n\n确定继续吗？`
+    : `This will restore ${session.tabs.length} tabs from the last saved session.\n\nPreview:\n${summarizeSessionTabs(session.tabs)}\n\nContinue?`;
+  return window.confirm(message);
+}
+
+async function confirmCloseDuplicates() {
+  const tabs = await getAllTabs();
+  const urlMap = new Map();
+  let duplicateCount = 0;
+
+  for (const tab of tabs) {
+    const normalized = normalizeUrl(tab.url);
+    if (!urlMap.has(normalized)) {
+      urlMap.set(normalized, true);
+    } else {
+      duplicateCount += 1;
+    }
+  }
+
+  if (duplicateCount === 0) {
+    window.alert(currentLang === 'zh' ? '没有发现可关闭的重复标签。' : 'No duplicate tabs were found.');
+    return false;
+  }
+
+  const message = currentLang === 'zh'
+    ? `将关闭 ${duplicateCount} 个重复标签，并为每个重复页面保留 1 个。\n\n确定继续吗？`
+    : `This will close ${duplicateCount} duplicate tabs and keep one copy of each page.\n\nContinue?`;
+  return window.confirm(message);
+}
+
+async function confirmCloseAllTabs() {
+  const tabs = await getAllTabs();
+  if (!tabs.length) {
+    window.alert(currentLang === 'zh' ? '当前没有可关闭的标签。' : 'There are no tabs to close right now.');
+    return false;
+  }
+
+  const message = currentLang === 'zh'
+    ? `将关闭当前全部 ${tabs.length} 个网页标签。\n\n这是不可撤销操作。\n\n确定继续吗？`
+    : `This will close all ${tabs.length} open web tabs.\n\nThis cannot be undone.\n\nContinue?`;
+  return window.confirm(message);
+}
+
 async function saveCurrentSession() {
   const tabs = await getAllTabs();
   const payload = tabs.map((tab) => ({ title: tab.title || tab.url, url: tab.url }));
@@ -906,18 +977,22 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
 document.getElementById('toggleMoreLinksBtn').addEventListener('click', toggleMoreLinksMenu);
 document.getElementById('keepOnlyActionBtn').addEventListener('click', keepOnlyCurrentGroup);
 document.getElementById('saveSessionBtn').addEventListener('click', async () => {
+  if (!await confirmSaveSession()) return;
   await saveCurrentSession();
   await render();
 });
 document.getElementById('restoreSessionBtn').addEventListener('click', async () => {
+  if (!await confirmRestoreSession()) return;
   await restoreLastSession();
   await render();
 });
 document.getElementById('closeDuplicatesBtn').addEventListener('click', async () => {
+  if (!await confirmCloseDuplicates()) return;
   await closeDuplicateTabs();
   await render();
 });
 document.getElementById('closeAllBtn').addEventListener('click', async () => {
+  if (!await confirmCloseAllTabs()) return;
   await closeAllWebTabs();
   await render();
 });
