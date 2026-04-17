@@ -11,11 +11,13 @@
     <header class="zara-hero">
       <div class="topbar">
         <form class="searchbar" id="searchForm">
+          <button class="toolbar-icon-btn" id="searchSubmitBtn" type="submit" aria-label="搜索" title="搜索">
+            <span aria-hidden="true">⌕</span>
+          </button>
           <div class="searchbox">
             <input id="searchInput" type="search" autocomplete="off">
             <div class="search-suggestions" id="searchSuggestions"></div>
           </div>
-          <button class="btn btn-small btn-primary" id="searchSubmitBtn" type="submit">搜索</button>
         </form>
         <nav class="quick-links" id="quickLinksLabel" aria-label="常用入口">
           <div class="quick-links-main" id="quickLinksMain"></div>
@@ -43,8 +45,8 @@
       <div class="zara-section-title" id="currentTabsLabel">当前标签</div>
       <div class="zara-toolbar-right">
         <span class="zara-meta" id="groupHint"></span>
-        <button class="btn btn-small" id="refreshBtn">刷新</button>
-        <button class="btn btn-small btn-danger-soft" id="closeAllBtn">全部关闭</button>
+        <button class="toolbar-icon-btn" id="refreshBtn" aria-label="刷新" title="刷新">↻</button>
+        <button class="toolbar-icon-btn toolbar-icon-btn-danger" id="closeAllBtn" aria-label="全部关闭" title="全部关闭">×</button>
       </div>
     </section>
 
@@ -102,8 +104,8 @@
         </div>
       </button>
       <div class="tab-actions">
-        <button class="icon-btn save-btn" title="保存到稍后处理">稍后</button>
-        <button class="icon-btn close-btn" title="关闭标签">关闭</button>
+        <button class="icon-btn icon-only-btn save-btn" title="保存到稍后处理" aria-label="保存到稍后处理">◷</button>
+        <button class="icon-btn icon-only-btn close-btn" title="关闭标签" aria-label="关闭标签">×</button>
       </div>
     </div>
   </template>
@@ -112,8 +114,8 @@
     <div class="saved-item">
       <a class="saved-link" target="_blank" rel="noreferrer noopener"></a>
       <div class="saved-actions">
-        <button class="icon-btn reopen-btn">打开</button>
-        <button class="icon-btn remove-saved-btn">移除</button>
+        <button class="icon-btn icon-only-btn reopen-btn" title="打开" aria-label="打开">↗</button>
+        <button class="icon-btn icon-only-btn remove-saved-btn" title="移除" aria-label="移除">×</button>
       </div>
     </div>
   </template>

@@ -115,10 +115,13 @@ function applyStaticTexts() {
   document.documentElement.lang = currentLang === 'zh' ? 'zh-CN' : 'en';
   document.title = BRAND[currentLang];
   document.getElementById('searchInput').placeholder = t.searchPlaceholder;
-  document.getElementById('searchSubmitBtn').textContent = t.searchButton;
+  document.getElementById('searchSubmitBtn').setAttribute('aria-label', t.searchButton);
+  document.getElementById('searchSubmitBtn').setAttribute('title', t.searchButton);
   document.getElementById('currentTabsLabel').textContent = t.currentTabs;
-  document.getElementById('refreshBtn').textContent = t.refresh;
-  document.getElementById('closeAllBtn').textContent = t.closeAll;
+  document.getElementById('refreshBtn').setAttribute('aria-label', t.refresh);
+  document.getElementById('refreshBtn').setAttribute('title', t.refresh);
+  document.getElementById('closeAllBtn').setAttribute('aria-label', t.closeAll);
+  document.getElementById('closeAllBtn').setAttribute('title', t.closeAll);
   document.getElementById('savedTitle').textContent = t.saved;
   document.getElementById('savedCountSuffix').textContent = t.savedCountSuffix;
   document.getElementById('savedEmpty').textContent = t.savedEmpty;
@@ -595,8 +598,10 @@ async function renderSaved() {
     const link = node.querySelector('.saved-link');
     link.href = item.url;
     link.textContent = item.title;
-    node.querySelector('.reopen-btn').textContent = t.open;
-    node.querySelector('.remove-saved-btn').textContent = t.remove;
+    node.querySelector('.reopen-btn').setAttribute('aria-label', t.open);
+    node.querySelector('.remove-saved-btn').setAttribute('aria-label', t.remove);
+    node.querySelector('.reopen-btn').title = t.open;
+    node.querySelector('.remove-saved-btn').title = t.remove;
     node.querySelector('.reopen-btn').addEventListener('click', async () => {
       await chrome.tabs.create({ url: item.url });
     });
@@ -741,8 +746,8 @@ async function renderGroups(tabs) {
       favicon.addEventListener('error', () => {
         favicon.style.display = 'none';
       });
-      tabNode.querySelector('.save-btn').textContent = t.saveForLater;
-      tabNode.querySelector('.close-btn').textContent = t.closeTab;
+      tabNode.querySelector('.save-btn').setAttribute('aria-label', t.saveForLater);
+      tabNode.querySelector('.close-btn').setAttribute('aria-label', t.closeTab);
       tabNode.querySelector('.save-btn').title = t.saveForLater;
       tabNode.querySelector('.close-btn').title = t.closeTab;
       tabNode.querySelector('.tab-main').addEventListener('click', async () => {
