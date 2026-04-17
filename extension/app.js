@@ -169,7 +169,7 @@ function normalizeHostname(hostname) {
   return hostname.replace(/^www\./, '');
 }
 
-function formatHostnameLabel(hostname) {
+function formatHostnameLabel(hostname, sampleTitle = '') {
   const clean = normalizeHostname(hostname).toLowerCase();
   const namedHosts = {
     'google.com': 'Google',
@@ -186,6 +186,12 @@ function formatHostnameLabel(hostname) {
 
   if (namedHosts[clean]) return namedHosts[clean];
 
+  const isLocalIp = /^(?:10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3})$/.test(clean);
+  if (isLocalIp) {
+    const title = cleanTitle(sampleTitle, '').replace(/\s*[—|-]\s*.*$/, '').trim();
+    return title || (currentLang === 'zh' ? '局域网设备' : 'Local Device');
+  }
+
   const parts = clean.split('.').filter(Boolean);
   if (!parts.length) return hostname;
 
@@ -197,8 +203,12 @@ function formatHostnameLabel(hostname) {
     .join(' ');
 }
 
-function domainInitial(hostname) {
-  const label = formatHostnameLabel(hostname);
+function formatGroupTitle(group) {
+  return formatHostnameLabel(group.hostname, group.items?.[0]?.title || '');
+}
+
+function domainInitial(hostname, sampleTitle = '') {
+  const label = formatHostnameLabel(hostname, sampleTitle);
   const first = label.charAt(0).toUpperCase();
   return /[A-Z0-9]/.test(first) ? first : (currentLang === 'zh' ? '页' : 'T');
 }
@@ -624,12 +634,13 @@ async function renderGroups(tabs) {
     const node = groupTemplate.content.firstElementChild.cloneNode(true);
     const toneClass = GROUP_TONES[index % GROUP_TONES.length];
     node.classList.add(toneClass);
-    node.querySelector('.group-title').textContent = formatHostnameLabel(group.hostname);
+    node.querySelector('.group-title').textContent = formatGroupTitle(group);
     node.querySelector('.group-meta').textContent = t.groupMeta(group.items.length);
 
     const groupFavicon = node.querySelector('.group-favicon');
     const groupBadge = node.querySelector('.group-badge');
     const sampleTab = group.items[0];
+    const sampleTitle = sampleTab?.title || '';
     const groupIconUrl = getFaviconUrl(sampleTab);
     if (groupIconUrl) {
       groupFavicon.src = groupIconUrl;
@@ -638,12 +649,12 @@ async function renderGroups(tabs) {
     } else {
       groupFavicon.style.display = 'none';
       groupBadge.style.display = 'grid';
-      groupBadge.textContent = domainInitial(group.hostname);
+      groupBadge.textContent = domainInitial(group.hostname, sampleTitle);
     }
     groupFavicon.addEventListener('error', () => {
       groupFavicon.style.display = 'none';
       groupBadge.style.display = 'grid';
-      groupBadge.textContent = domainInitial(group.hostname);
+      groupBadge.textContent = domainInitial(group.hostname, sampleTitle);
     });
 
     node.querySelector('.focus-group-btn').textContent = t.focusThis;
