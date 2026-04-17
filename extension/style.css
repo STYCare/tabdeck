@@ -22,7 +22,8 @@
 html, body { height: 100%; }
 body {
   margin: 0;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   font-family: ui-rounded, "SF Pro Rounded", "PingFang SC", "Helvetica Neue", sans-serif;
   background:
     radial-gradient(circle at top left, rgba(216, 225, 215, 0.58), transparent 30%),
@@ -47,7 +48,7 @@ button { cursor: pointer; }
 
 .app {
   max-width: 1500px;
-  height: 100vh;
+  min-height: 100vh;
   margin: 0 auto;
   padding: 16px;
   display: grid;
@@ -191,13 +192,13 @@ h1 {
   display: grid;
   grid-template-columns: minmax(0, 2.2fr) minmax(310px, 0.92fr);
   gap: 12px;
-  align-items: stretch;
+  align-items: start;
 }
 
 .panel {
   padding: 14px;
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
   background: var(--surface);
 }
 
@@ -221,12 +222,10 @@ h1 {
 
 .groups-grid {
   min-height: 0;
-  height: calc(100% - 30px);
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
   align-content: start;
-  overflow: hidden;
 }
 
 .saved-list {
@@ -236,7 +235,7 @@ h1 {
 
 .group-card {
   padding: 12px;
-  min-height: 250px;
+  min-height: 240px;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
 }
@@ -350,8 +349,13 @@ h1 {
   grid-template-rows: auto minmax(0, 1fr);
 }
 
+.side-panel {
+  position: sticky;
+  top: 16px;
+}
+
 .side-panel .saved-list {
-  overflow: hidden;
+  overflow: visible;
 }
 
 @media (max-width: 1180px) {
