@@ -4,6 +4,7 @@ const STORAGE_KEY = 'qingye.savedTabs';
 const SESSION_KEY = 'qingye.lastSession';
 const MAX_GROUP_TABS = 4;
 const MAX_SAVED_ITEMS = 6;
+const GROUP_TONES = ['tone-sage', 'tone-cream', 'tone-mist'];
 
 async function getAllTabs() {
   const tabs = await chrome.tabs.query({});
@@ -27,16 +28,28 @@ function normalizeUrl(url) {
   }
 }
 
+function getHostname(url) {
+  try {
+    return new URL(url).hostname || '未知页面';
+  } catch {
+    return '本地文件';
+  }
+}
+
+function domainInitial(hostname) {
+  const clean = hostname.replace(/^www\./, '');
+  const first = clean.charAt(0).toUpperCase();
+  return /[A-Z0-9]/.test(first) ? first : '页';
+}
+
 function groupTabs(tabs) {
   const map = new Map();
   for (const tab of tabs) {
-    let hostname = '本地文件';
-    try {
-      hostname = new URL(tab.url).hostname || '未知页面';
-    } catch {}
+    const hostname = getHostname(tab.url);
     if (!map.has(hostname)) map.set(hostname, []);
     map.get(hostname).push(tab);
   }
+
   return [...map.entries()]
     .map(([hostname, items]) => ({
       hostname,
@@ -149,6 +162,14 @@ async function renderSaved() {
   return items;
 }
 
+async function focusGroup(group) {
+  await saveCurrentSession();
+  const currentTabs = await getAllTabs();
+  const keepIds = new Set(group.items.map((item) => item.id));
+  const closeIds = currentTabs.filter((tab) => !keepIds.has(tab.id)).map((tab) => tab.id);
+  await closeTabs(closeIds);
+}
+
 async function renderGroups(tabs) {
   const groupsWrap = document.getElementById('groups');
   const groupTemplate = document.getElementById('groupTemplate');
@@ -156,12 +177,20 @@ async function renderGroups(tabs) {
   const groups = groupTabs(tabs);
   groupsWrap.innerHTML = '';
 
-  for (const group of groups) {
+  for (const [index, group] of groups.entries()) {
     const node = groupTemplate.content.firstElementChild.cloneNode(true);
+    const toneClass = GROUP_TONES[index % GROUP_TONES.length];
+    node.classList.add(toneClass);
     node.querySelector('.group-title').textContent = group.hostname;
     node.querySelector('.group-meta').textContent = group.hiddenCount > 0
       ? `${group.items.length} 个标签 · 收起 ${group.hiddenCount} 个`
       : `${group.items.length} 个标签`;
+    node.querySelector('.group-badge').textContent = domainInitial(group.hostname);
+
+    node.querySelector('.focus-group-btn').addEventListener('click', async () => {
+      await focusGroup(group);
+      await render();
+    });
 
     node.querySelector('.close-group-btn').addEventListener('click', async () => {
       await closeTabs(group.items.map((item) => item.id));

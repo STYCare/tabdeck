@@ -64,11 +64,17 @@
   <template id="groupTemplate">
     <article class="group-card">
       <div class="group-top">
-        <div>
-          <h3 class="group-title"></h3>
-          <div class="group-meta"></div>
+        <div class="group-heading">
+          <div class="group-badge"></div>
+          <div>
+            <h3 class="group-title"></h3>
+            <div class="group-meta"></div>
+          </div>
         </div>
-        <button class="btn btn-small close-group-btn">关闭这组</button>
+        <div class="group-actions-top">
+          <button class="btn btn-small focus-group-btn">专注这个</button>
+          <button class="btn btn-small close-group-btn">关闭这组</button>
+        </div>
       </div>
       <div class="tab-list"></div>
     </article>
