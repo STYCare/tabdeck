@@ -444,11 +444,43 @@ mark {
   font-weight: 700;
 }
 
+.group-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .group-title {
   margin: 0;
   font-size: 14px;
   color: var(--text-strong);
   line-height: 1.3;
+}
+
+.group-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.group-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  color: var(--muted);
+  background: rgba(255,255,255,0.56);
+  border: 1px solid rgba(219, 205, 193, 0.72);
+}
+
+.group-pill-duplicate {
+  color: #9a5a2a;
+  background: rgba(200, 113, 58, 0.12);
+  border-color: rgba(200, 113, 58, 0.22);
 }
 
 .group-meta {
@@ -543,6 +575,20 @@ mark {
 
 .group-footer-actions {
   margin-top: 12px;
+}
+
+.dedupe-group-btn {
+  background: rgba(255,255,255,0.72);
+}
+
+.dedupe-group-btn[hidden] {
+  display: none;
+}
+
+.tone-sage .dedupe-group-btn,
+.tone-cream .dedupe-group-btn,
+.tone-mist .dedupe-group-btn {
+  border-color: rgba(200, 113, 58, 0.2);
 }
 
 .group-more {

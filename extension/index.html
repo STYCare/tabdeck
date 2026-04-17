@@ -44,7 +44,6 @@
       <div class="zara-toolbar-right">
         <span class="zara-meta" id="groupHint"></span>
         <button class="btn btn-small" id="refreshBtn">刷新</button>
-        <button class="btn btn-small" id="closeDuplicatesBtn">去重</button>
         <button class="btn btn-small btn-danger-soft" id="closeAllBtn">全部关闭</button>
       </div>
     </section>
@@ -75,7 +74,10 @@
             <div class="group-badge"></div>
           </div>
           <div>
-            <h3 class="group-title"></h3>
+            <div class="group-title-row">
+              <h3 class="group-title"></h3>
+              <div class="group-pills"></div>
+            </div>
             <div class="group-meta"></div>
           </div>
         </div>
@@ -84,6 +86,7 @@
       <div class="group-footer-actions">
         <button class="btn btn-small focus-group-btn">专注这个</button>
         <button class="btn btn-small close-group-btn">关闭这组</button>
+        <button class="btn btn-small dedupe-group-btn" hidden>关闭重复项</button>
       </div>
     </article>
   </template>

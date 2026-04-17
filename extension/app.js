@@ -23,7 +23,8 @@ const DICTS = {
     searchButton: '搜索',
     currentTabs: '标签概览',
     refresh: '刷新',
-    dedupe: '去重',
+    dedupeGroup: (count) => `关闭 ${count} 个重复项`,
+    duplicateCount: (count) => `${count} 个重复项`,
     closeAll: '全部关闭',
     saved: '稍后处理',
     savedCountSuffix: '条',
@@ -59,7 +60,8 @@ const DICTS = {
     searchButton: 'Search',
     currentTabs: 'Workspace',
     refresh: 'Refresh',
-    dedupe: 'Deduplicate',
+    dedupeGroup: (count) => `Close ${count} duplicate${count === 1 ? '' : 's'}`,
+    duplicateCount: (count) => `${count} duplicate${count === 1 ? '' : 's'}`,
     closeAll: 'Close All',
     saved: 'Read Later',
     savedCountSuffix: 'items',
@@ -608,6 +610,29 @@ async function focusGroup(group) {
   await closeTabs(closeIds);
 }
 
+function getDuplicateInfo(items) {
+  const urlMap = new Map();
+  const duplicateIds = [];
+
+  for (const item of items) {
+    const normalized = normalizeUrl(item.url);
+    const bucket = urlMap.get(normalized) || [];
+    bucket.push(item);
+    urlMap.set(normalized, bucket);
+  }
+
+  for (const bucket of urlMap.values()) {
+    if (bucket.length > 1) {
+      duplicateIds.push(...bucket.slice(1).map((tab) => tab.id));
+    }
+  }
+
+  return {
+    duplicateCount: duplicateIds.length,
+    duplicateIds
+  };
+}
+
 async function renderGroups(tabs) {
   const groupsWrap = document.getElementById('groups');
   const groupTemplate = document.getElementById('groupTemplate');
@@ -627,8 +652,17 @@ async function renderGroups(tabs) {
     const node = groupTemplate.content.firstElementChild.cloneNode(true);
     const toneClass = GROUP_TONES[index % GROUP_TONES.length];
     node.classList.add(toneClass);
+    const duplicateInfo = getDuplicateInfo(group.items);
+    const pillsWrap = node.querySelector('.group-pills');
     node.querySelector('.group-title').textContent = formatGroupTitle(group);
     node.querySelector('.group-meta').textContent = t.groupMeta(group.items.length);
+    pillsWrap.innerHTML = '';
+    if (duplicateInfo.duplicateCount > 0) {
+      const duplicatePill = document.createElement('span');
+      duplicatePill.className = 'group-pill group-pill-duplicate';
+      duplicatePill.textContent = t.duplicateCount(duplicateInfo.duplicateCount);
+      pillsWrap.appendChild(duplicatePill);
+    }
 
     const groupFavicon = node.querySelector('.group-favicon');
     const groupBadge = node.querySelector('.group-badge');
@@ -652,6 +686,23 @@ async function renderGroups(tabs) {
 
     node.querySelector('.focus-group-btn').textContent = t.focusThis;
     node.querySelector('.close-group-btn').textContent = t.closeGroup;
+    const dedupeBtn = node.querySelector('.dedupe-group-btn');
+    if (duplicateInfo.duplicateCount > 0) {
+      dedupeBtn.hidden = false;
+      dedupeBtn.textContent = t.dedupeGroup(duplicateInfo.duplicateCount);
+      dedupeBtn.addEventListener('click', async () => {
+        const confirmed = window.confirm(
+          currentLang === 'zh'
+            ? `将关闭这一组里 ${duplicateInfo.duplicateCount} 个重复标签，并保留每个页面 1 个。\n\n确定继续吗？`
+            : `This will close ${duplicateInfo.duplicateCount} duplicate tabs in this group and keep one copy of each page.\n\nContinue?`
+        );
+        if (!confirmed) return;
+        await closeTabs(duplicateInfo.duplicateIds);
+        await render();
+      });
+    } else {
+      dedupeBtn.hidden = true;
+    }
     node.querySelector('.focus-group-btn').addEventListener('click', async () => {
       await focusGroup(group);
       await render();
@@ -708,51 +759,9 @@ async function renderGroups(tabs) {
   return groups;
 }
 
-async function closeDuplicateTabs() {
-  const tabs = await getAllTabs();
-  const urlMap = new Map();
-  const toClose = [];
-
-  for (const tab of tabs) {
-    const normalized = normalizeUrl(tab.url);
-    if (!urlMap.has(normalized)) {
-      urlMap.set(normalized, tab.id);
-    } else {
-      toClose.push(tab.id);
-    }
-  }
-
-  await closeTabs(toClose);
-}
-
 async function closeAllWebTabs() {
   const tabs = await getAllTabs();
   await closeTabs(tabs.map((tab) => tab.id));
-}
-
-async function confirmCloseDuplicates() {
-  const tabs = await getAllTabs();
-  const urlMap = new Map();
-  let duplicateCount = 0;
-
-  for (const tab of tabs) {
-    const normalized = normalizeUrl(tab.url);
-    if (!urlMap.has(normalized)) {
-      urlMap.set(normalized, true);
-    } else {
-      duplicateCount += 1;
-    }
-  }
-
-  if (duplicateCount === 0) {
-    window.alert(currentLang === 'zh' ? '没有发现可关闭的重复标签。' : 'No duplicate tabs were found.');
-    return false;
-  }
-
-  const message = currentLang === 'zh'
-    ? `将关闭 ${duplicateCount} 个重复标签，并为每个重复页面保留 1 个。\n\n确定继续吗？`
-    : `This will close ${duplicateCount} duplicate tabs and keep one copy of each page.\n\nContinue?`;
-  return window.confirm(message);
 }
 
 async function confirmCloseAllTabs() {
@@ -914,11 +923,6 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
 });
 document.getElementById('toggleMoreLinksBtn').addEventListener('click', toggleMoreLinksMenu);
 document.getElementById('keepOnlyActionBtn').addEventListener('click', keepOnlyCurrentGroup);
-document.getElementById('closeDuplicatesBtn').addEventListener('click', async () => {
-  if (!await confirmCloseDuplicates()) return;
-  await closeDuplicateTabs();
-  await render();
-});
 document.getElementById('closeAllBtn').addEventListener('click', async () => {
   if (!await confirmCloseAllTabs()) return;
   await closeAllWebTabs();
