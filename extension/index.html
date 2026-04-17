@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>清页</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <div>
+        <div class="eyebrow">清页 · QingYe</div>
+        <h1>把散落的标签页，收拾成能看的样子。</h1>
+        <p class="subtitle">新标签页打开的不是空白，而是你当前注意力的地图。</p>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-card">
+          <div class="stat-num" id="totalTabs">—</div>
+          <div class="stat-label">打开标签</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="totalGroups">—</div>
+          <div class="stat-label">站点分组</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="savedCount">—</div>
+          <div class="stat-label">稍后处理</div>
+        </div>
+      </div>
+    </header>
+
+    <section class="toolbar">
+      <button class="btn btn-primary" id="refreshBtn">刷新</button>
+      <button class="btn" id="closeDuplicatesBtn">清理重复标签</button>
+      <button class="btn" id="closeAllBtn">关闭全部网页标签</button>
+    </section>
+
+    <section class="layout">
+      <section class="panel">
+        <div class="panel-head">
+          <h2>当前标签</h2>
+          <span id="groupHint"></span>
+        </div>
+        <div id="groups" class="groups"></div>
+      </section>
+
+      <aside class="panel side-panel">
+        <div class="panel-head">
+          <h2>稍后处理</h2>
+        </div>
+        <div id="savedList" class="saved-list"></div>
+        <div id="savedEmpty" class="empty">还没有保存的标签。先活着，别囤太多。</div>
+      </aside>
+    </section>
+  </main>
+
+  <template id="groupTemplate">
+    <article class="group-card">
+      <div class="group-top">
+        <div>
+          <h3 class="group-title"></h3>
+          <div class="group-meta"></div>
+        </div>
+        <button class="btn btn-small close-group-btn">关闭这组</button>
+      </div>
+      <div class="tab-list"></div>
+    </article>
+  </template>
+
+  <template id="tabTemplate">
+    <div class="tab-item">
+      <button class="tab-main">
+        <div class="tab-title"></div>
+        <div class="tab-url"></div>
+      </button>
+      <div class="tab-actions">
+        <button class="icon-btn save-btn" title="保存到稍后处理">稍后</button>
+        <button class="icon-btn close-btn" title="关闭标签">关闭</button>
+      </div>
+    </div>
+  </template>
+
+  <template id="savedTemplate">
+    <div class="saved-item">
+      <a class="saved-link" target="_blank" rel="noreferrer noopener"></a>
+      <div class="saved-actions">
+        <button class="icon-btn reopen-btn">打开</button>
+        <button class="icon-btn remove-saved-btn">移除</button>
+      </div>
+    </div>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
