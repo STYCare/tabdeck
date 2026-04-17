@@ -105,6 +105,7 @@ let currentLang = 'zh';
 let t = DICTS.zh;
 let currentKeepOnlyGroup = null;
 const CURRENT_NEW_TAB_URL = chrome.runtime.getURL('index.html');
+const CURRENT_PAGE_URL = window.location.href;
 
 function detectLang() {
   const lang = (chrome.i18n?.getUILanguage?.() || navigator.language || 'zh').toLowerCase();
@@ -254,11 +255,20 @@ function groupTabs(tabs) {
 
 async function getDuplicateNewTabPages() {
   const tabs = await chrome.tabs.query({});
+  const currentPage = new URL(CURRENT_PAGE_URL);
+
   return tabs.filter((tab) => {
     const url = tab.url || '';
-    return url === CURRENT_NEW_TAB_URL
-      || url.startsWith(`${CURRENT_NEW_TAB_URL}#`)
-      || url.startsWith(`${CURRENT_NEW_TAB_URL}?`);
+    if (!url.startsWith('chrome-extension://')) return false;
+
+    try {
+      const parsed = new URL(url);
+      return parsed.origin === currentPage.origin && parsed.pathname === currentPage.pathname;
+    } catch {
+      return url === CURRENT_NEW_TAB_URL
+        || url.startsWith(`${CURRENT_NEW_TAB_URL}#`)
+        || url.startsWith(`${CURRENT_NEW_TAB_URL}?`);
+    }
   });
 }
 
