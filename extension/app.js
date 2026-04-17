@@ -120,7 +120,6 @@ function applyStaticTexts() {
   document.getElementById('searchSubmitBtn').textContent = t.searchButton;
   document.getElementById('currentTabsLabel').textContent = t.currentTabs;
   document.getElementById('refreshBtn').textContent = t.refresh;
-  document.getElementById('closeDuplicatesBtn').textContent = t.dedupe;
   document.getElementById('closeAllBtn').textContent = t.closeAll;
   document.getElementById('savedTitle').textContent = t.saved;
   document.getElementById('savedCountSuffix').textContent = t.savedCountSuffix;
