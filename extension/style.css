@@ -409,9 +409,25 @@ mark {
 
 .group-heading {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
   min-width: 0;
+}
+
+.group-head-main {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.btn-ghost:hover {
+  background: rgba(255,255,255,0.62);
+  border-color: rgba(219, 205, 193, 0.58);
 }
 
 .group-badge-wrap {
@@ -592,10 +608,37 @@ mark {
   justify-content: flex-end;
 }
 
+.group-footer-actions:has(.dedupe-group-btn[hidden]),
+.group-footer-actions:empty {
+  display: none;
+}
+
+.group-top {
+  align-items: flex-start;
+}
+
+.group-top .close-group-btn {
+  margin-left: auto;
+  flex: 0 0 auto;
+  align-self: flex-start;
+}
+
+.group-top .close-group-btn.btn-ghost {
+  color: var(--muted);
+}
+
+.group-top .close-group-btn.btn-ghost:hover {
+  color: var(--text-strong);
+}
+
+.group-title-row,
+.group-meta {
+  padding-right: 6px;
+}
+
 .dedupe-group-btn {
   background: rgba(255,255,255,0.72);
   border-color: rgba(200, 113, 58, 0.18);
-  order: 1;
 }
 
 .dedupe-group-btn:hover {
@@ -603,21 +646,18 @@ mark {
 }
 
 .close-group-btn {
-  opacity: 0.82;
-  order: 2;
+  opacity: 0.76;
+  height: 28px;
+  padding: 0 8px;
+  font-size: 11px;
 }
 
 .close-group-btn:hover {
   opacity: 1;
 }
 
-.group-footer-actions .dedupe-group-btn[hidden] + .close-group-btn,
-.group-footer-actions .close-group-btn:only-child {
+.group-footer-actions .dedupe-group-btn {
   margin-left: auto;
-}
-
-.group-footer-actions .dedupe-group-btn + .close-group-btn {
-  margin-left: 0;
 }
 
 .dedupe-group-btn[hidden] {
