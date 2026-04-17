@@ -7,12 +7,12 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main class="app">
-    <header class="hero compact-hero">
+  <main class="app shell">
+    <header class="hero compact-hero cream-hero">
       <div class="hero-main">
         <div class="eyebrow">清页 · QingYe</div>
         <h1>一页看完，顺手清掉。</h1>
-        <p class="subtitle">别把新标签页做成第二个垃圾场。大的先砍，重复的先删，想留的再存。</p>
+        <p class="subtitle">像整理桌面一样整理标签。轻一点，干净一点，别让注意力碎成渣。</p>
       </div>
       <div class="hero-side">
         <div class="hero-stats compact-stats">
@@ -35,14 +35,14 @@
 
     <section class="toolbar compact-toolbar">
       <button class="btn btn-primary" id="refreshBtn">刷新</button>
-      <button class="btn" id="saveSessionBtn">保存当前会话</button>
-      <button class="btn" id="restoreSessionBtn">恢复最近会话</button>
+      <button class="btn" id="saveSessionBtn">保存会话</button>
+      <button class="btn" id="restoreSessionBtn">恢复会话</button>
       <button class="btn" id="closeDuplicatesBtn">去重</button>
-      <button class="btn" id="closeAllBtn">全部关闭</button>
+      <button class="btn btn-danger-soft" id="closeAllBtn">全部关闭</button>
     </section>
 
     <section class="layout">
-      <section class="panel">
+      <section class="panel main-panel">
         <div class="panel-head">
           <h2>当前标签</h2>
           <span id="groupHint"></span>
@@ -50,13 +50,13 @@
         <div id="groups" class="groups groups-grid"></div>
       </section>
 
-      <aside class="panel side-panel compact-side-panel">
+      <aside class="panel side-panel compact-side-panel saved-panel">
         <div class="panel-head">
           <h2>稍后处理</h2>
           <span id="savedHint"></span>
         </div>
         <div id="savedList" class="saved-list"></div>
-        <div id="savedEmpty" class="empty">还没有保存的标签。先活着，别囤太多。</div>
+        <div id="savedEmpty" class="empty">还没有保存的标签。现在还算清爽。</div>
       </aside>
     </section>
   </main>

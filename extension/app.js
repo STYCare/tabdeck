@@ -101,20 +101,20 @@ function updateStats(totalTabs, groups, saved) {
   document.getElementById('totalTabs').textContent = String(totalTabs);
   document.getElementById('totalGroups').textContent = String(groups);
   document.getElementById('savedCount').textContent = String(saved);
-  document.getElementById('groupHint').textContent = `共 ${groups} 组，默认每组只露 ${MAX_GROUP_TABS} 个。`;
+  document.getElementById('groupHint').textContent = `共 ${groups} 组，每组先看 ${MAX_GROUP_TABS} 个。`;
   document.getElementById('savedHint').textContent = saved > MAX_SAVED_ITEMS ? `仅展示前 ${MAX_SAVED_ITEMS} 条` : '';
 
   const focusSummary = document.getElementById('focusSummary');
   if (!focusSummary) return;
 
   if (totalTabs === 0) {
-    focusSummary.textContent = '空了。挺好。';
+    focusSummary.textContent = '空了。很安静。';
   } else if (totalTabs <= 12) {
-    focusSummary.textContent = '还算克制。';
+    focusSummary.textContent = '还算清爽。';
   } else if (totalTabs <= 24) {
-    focusSummary.textContent = '开始臃肿了。';
+    focusSummary.textContent = '有点拥挤。';
   } else {
-    focusSummary.textContent = '标签已经失控。';
+    focusSummary.textContent = '该动刀了。';
   }
 }
 
@@ -190,7 +190,7 @@ async function renderGroups(tabs) {
     if (group.hiddenCount > 0) {
       const more = document.createElement('div');
       more.className = 'group-more';
-      more.textContent = `还有 ${group.hiddenCount} 个没展开。故意的，不然你又开始下滚。`;
+      more.textContent = `还有 ${group.hiddenCount} 个收起来了，先别把页面撑爆。`;
       list.appendChild(more);
     }
 
