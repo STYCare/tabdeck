@@ -44,6 +44,12 @@ button { cursor: pointer; }
   fill: none;
 }
 
+.ui-icon-solid circle {
+  fill: currentColor;
+  opacity: 0.14;
+  stroke: none;
+}
+
 .shell { position: relative; }
 .shell::before {
   content: '';
@@ -136,17 +142,18 @@ button { cursor: pointer; }
 
 .tab-actions .ui-icon,
 .saved-actions .ui-icon {
-  stroke-width: 2;
-}
-
-.text-icon-btn {
-  font-size: 15px;
-  font-weight: 500;
+  width: 15px;
+  height: 15px;
+  display: block;
+  opacity: 1;
   color: currentColor;
+  stroke-width: 2.15;
 }
 
-.save-btn.text-icon-btn {
-  font-size: 14px;
+.tab-actions .save-btn .ui-icon,
+.saved-actions .reopen-btn .ui-icon {
+  width: 16px;
+  height: 16px;
 }
 
 .searchbox {
