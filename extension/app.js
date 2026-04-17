@@ -169,9 +169,37 @@ function normalizeHostname(hostname) {
   return hostname.replace(/^www\./, '');
 }
 
+function formatHostnameLabel(hostname) {
+  const clean = normalizeHostname(hostname).toLowerCase();
+  const namedHosts = {
+    'google.com': 'Google',
+    'github.com': 'GitHub',
+    'youtube.com': 'YouTube',
+    'colab.research.google.com': 'Google Colab',
+    'mail.google.com': 'Gmail',
+    'docs.google.com': 'Google Docs',
+    'drive.google.com': 'Google Drive',
+    'calendar.google.com': 'Google Calendar',
+    '127.0.0.1': 'Localhost',
+    'localhost': 'Localhost'
+  };
+
+  if (namedHosts[clean]) return namedHosts[clean];
+
+  const parts = clean.split('.').filter(Boolean);
+  if (!parts.length) return hostname;
+
+  const core = parts.length >= 2 ? parts[parts.length - 2] : parts[0];
+  return core
+    .split(/[-_]/g)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
 function domainInitial(hostname) {
-  const clean = normalizeHostname(hostname);
-  const first = clean.charAt(0).toUpperCase();
+  const label = formatHostnameLabel(hostname);
+  const first = label.charAt(0).toUpperCase();
   return /[A-Z0-9]/.test(first) ? first : (currentLang === 'zh' ? '页' : 'T');
 }
 
@@ -596,8 +624,7 @@ async function renderGroups(tabs) {
     const node = groupTemplate.content.firstElementChild.cloneNode(true);
     const toneClass = GROUP_TONES[index % GROUP_TONES.length];
     node.classList.add(toneClass);
-    const host = normalizeHostname(group.hostname);
-    node.querySelector('.group-title').textContent = host;
+    node.querySelector('.group-title').textContent = formatHostnameLabel(group.hostname);
     node.querySelector('.group-meta').textContent = t.groupMeta(group.items.length);
 
     const groupFavicon = node.querySelector('.group-favicon');
