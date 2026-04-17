@@ -79,7 +79,7 @@ button { cursor: pointer; }
   border-radius: 999px;
   padding: 0;
   line-height: 1;
-  font-size: 16px;
+  font-size: 18px;
 }
 
 .toolbar-icon-btn:hover {
@@ -105,7 +105,7 @@ button { cursor: pointer; }
   align-items: center;
   justify-content: center;
   line-height: 1;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .icon-only-btn:hover {
@@ -132,6 +132,7 @@ button { cursor: pointer; }
   border-radius: 999px;
   padding: 0;
   z-index: 1;
+  font-size: 18px;
 }
 
 .searchbox-icon:hover {
@@ -327,8 +328,10 @@ mark {
 
 .keep-only-wrap {
   display: flex;
-  justify-content: center;
-  margin: 0 0 10px;
+  align-items: center;
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .keep-only-banner {
@@ -342,7 +345,7 @@ mark {
   background: rgba(250, 245, 239, 0.7);
   box-shadow: none;
   min-height: 32px;
-  max-width: min(430px, 100%);
+  max-width: min(460px, 100%);
 }
 
 .keep-only-copy {
@@ -383,6 +386,10 @@ mark {
   padding: 10px 0 14px;
   border-bottom: 1px solid rgba(176, 160, 146, 0.12);
   margin-bottom: 18px;
+}
+
+.zara-toolbar > .keep-only-wrap + .zara-section-title {
+  flex: 0 0 auto;
 }
 
 .zara-section-title {
