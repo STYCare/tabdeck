@@ -10,6 +10,7 @@ const GROUP_TONES = ['tone-sage', 'tone-cream', 'tone-mist'];
 let currentQuery = '';
 let latestTabs = [];
 let latestSearchMatches = [];
+let activeSuggestionIndex = -1;
 
 async function getAllTabs() {
   const tabs = await chrome.tabs.query({});
@@ -41,10 +42,26 @@ function getHostname(url) {
   }
 }
 
-function domainInitial(hostname) {
-  const clean = hostname.replace(/^www\./, '');
-  const first = clean.charAt(0).toUpperCase();
-  return /[A-Z0-9]/.test(first) ? first : '页';
+function normalizeHostname(hostname) {
+  return hostname.replace(/^www\./, '');
+}
+
+function escapeHtml(text) {
+  return text
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+function highlightMatch(text, query) {
+  const safeText = escapeHtml(text || '');
+  const trimmed = query.trim();
+  if (!trimmed) return safeText;
+  const escapedQuery = trimmed.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(`(${escapedQuery})`, 'ig');
+  return safeText.replace(regex, '<mark>$1</mark>');
 }
 
 function normalizeSearchInput(input) {
@@ -61,6 +78,19 @@ function getSearchableText(tab) {
     .toLowerCase();
 }
 
+function tabScore(tab, query) {
+  const title = (tab.title || '').toLowerCase();
+  const url = (tab.url || '').toLowerCase();
+  const host = normalizeHostname(getHostname(tab.url)).toLowerCase();
+  let score = 0;
+  if (title.startsWith(query)) score += 6;
+  if (host.startsWith(query)) score += 5;
+  if (title.includes(query)) score += 3;
+  if (host.includes(query)) score += 3;
+  if (url.includes(query)) score += 2;
+  return score;
+}
+
 function filterTabsByQuery(tabs, query) {
   const trimmed = query.trim().toLowerCase();
   if (!trimmed) return tabs;
@@ -72,22 +102,8 @@ function getSearchMatches(tabs, query) {
   if (!trimmed) return [];
   return tabs
     .filter((tab) => getSearchableText(tab).includes(trimmed))
-    .sort((a, b) => {
-      const aTitle = (tabScore(a, trimmed));
-      const bTitle = (tabScore(b, trimmed));
-      return bTitle - aTitle;
-    })
+    .sort((a, b) => tabScore(b, trimmed) - tabScore(a, trimmed))
     .slice(0, MAX_SEARCH_RESULTS);
-}
-
-function tabScore(tab, query) {
-  const title = (tab.title || '').toLowerCase();
-  const url = (tab.url || '').toLowerCase();
-  let score = 0;
-  if (title.startsWith(query)) score += 5;
-  if (title.includes(query)) score += 3;
-  if (url.includes(query)) score += 2;
-  return score;
 }
 
 function groupTabs(tabs) {
@@ -110,6 +126,18 @@ function groupTabs(tabs) {
 async function openUrl(url) {
   if (!url) return;
   await chrome.tabs.create({ url });
+}
+
+async function focusSearchMatch(index) {
+  const tab = latestSearchMatches[index];
+  if (!tab) return;
+  const input = document.getElementById('searchInput');
+  await focusTab(tab.id, tab.windowId);
+  input.value = '';
+  currentQuery = '';
+  latestSearchMatches = [];
+  activeSuggestionIndex = -1;
+  await render();
 }
 
 async function getSavedTabs() {
@@ -188,22 +216,35 @@ function renderSuggestions(matches, query) {
 
   if (!query.trim() || !matches.length) {
     wrap.classList.remove('show');
+    activeSuggestionIndex = -1;
     return;
   }
 
-  for (const tab of matches) {
+  const hostCounts = matches.reduce((map, tab) => {
+    const host = normalizeHostname(getHostname(tab.url));
+    map.set(host, (map.get(host) || 0) + 1);
+    return map;
+  }, new Map());
+
+  if (activeSuggestionIndex >= matches.length) activeSuggestionIndex = 0;
+  if (activeSuggestionIndex < 0) activeSuggestionIndex = 0;
+
+  matches.forEach((tab, index) => {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'suggestion-item';
+    if (index === activeSuggestionIndex) button.classList.add('active');
 
     const favicon = getFaviconUrl(tab);
+    const host = normalizeHostname(getHostname(tab.url));
+    const hostCount = hostCounts.get(host) || 1;
     button.innerHTML = `
       <img class="suggestion-favicon" src="${favicon}" alt="">
       <span class="suggestion-text">
-        <span class="suggestion-title">${cleanTitle(tab.title, tab.url)}</span>
-        <span class="suggestion-url">${shortUrl(tab.url)}</span>
+        <span class="suggestion-title">${highlightMatch(cleanTitle(tab.title, tab.url), query)}</span>
+        <span class="suggestion-url">${highlightMatch(shortUrl(tab.url), query)}</span>
       </span>
-      <span class="suggestion-state">已打开</span>
+      <span class="suggestion-state">${hostCount > 1 ? `已开 ${hostCount} 个` : '已打开'}</span>
     `;
 
     const img = button.querySelector('.suggestion-favicon');
@@ -211,17 +252,17 @@ function renderSuggestions(matches, query) {
       img.style.display = 'none';
     });
 
+    button.addEventListener('mouseenter', () => {
+      activeSuggestionIndex = index;
+      renderSuggestions(matches, query);
+    });
+
     button.addEventListener('click', async () => {
-      await focusTab(tab.id, tab.windowId);
-      const input = document.getElementById('searchInput');
-      input.value = '';
-      currentQuery = '';
-      latestSearchMatches = [];
-      await render();
+      await focusSearchMatch(index);
     });
 
     wrap.appendChild(button);
-  }
+  });
 
   wrap.classList.add('show');
 }
@@ -284,9 +325,28 @@ async function renderGroups(tabs) {
     const node = groupTemplate.content.firstElementChild.cloneNode(true);
     const toneClass = GROUP_TONES[index % GROUP_TONES.length];
     node.classList.add(toneClass);
-    node.querySelector('.group-title').textContent = group.hostname.replace(/^www\./, '');
+    const host = normalizeHostname(group.hostname);
+    node.querySelector('.group-title').textContent = host;
     node.querySelector('.group-meta').textContent = `${group.items.length} 个标签`;
-    node.querySelector('.group-badge').textContent = domainInitial(group.hostname);
+
+    const groupFavicon = node.querySelector('.group-favicon');
+    const groupBadge = node.querySelector('.group-badge');
+    const sampleTab = group.items[0];
+    const groupIconUrl = getFaviconUrl(sampleTab);
+    if (groupIconUrl) {
+      groupFavicon.src = groupIconUrl;
+      groupFavicon.style.display = 'block';
+      groupBadge.style.display = 'none';
+    } else {
+      groupFavicon.style.display = 'none';
+      groupBadge.style.display = 'grid';
+      groupBadge.textContent = domainInitial(group.hostname);
+    }
+    groupFavicon.addEventListener('error', () => {
+      groupFavicon.style.display = 'none';
+      groupBadge.style.display = 'grid';
+      groupBadge.textContent = domainInitial(group.hostname);
+    });
 
     node.querySelector('.focus-group-btn').addEventListener('click', async () => {
       await focusGroup(group);
@@ -301,8 +361,8 @@ async function renderGroups(tabs) {
     const list = node.querySelector('.tab-list');
     for (const tab of group.items.slice(0, MAX_GROUP_TABS)) {
       const tabNode = tabTemplate.content.firstElementChild.cloneNode(true);
-      tabNode.querySelector('.tab-title').textContent = cleanTitle(tab.title, tab.url);
-      tabNode.querySelector('.tab-url').textContent = shortUrl(tab.url);
+      tabNode.querySelector('.tab-title').innerHTML = highlightMatch(cleanTitle(tab.title, tab.url), currentQuery);
+      tabNode.querySelector('.tab-url').innerHTML = highlightMatch(shortUrl(tab.url), currentQuery);
       const favicon = tabNode.querySelector('.tab-favicon');
       const faviconUrl = getFaviconUrl(tab);
       if (faviconUrl) {
@@ -399,24 +459,45 @@ async function render() {
 document.getElementById('refreshBtn').addEventListener('click', render);
 document.getElementById('searchInput').addEventListener('input', async (event) => {
   currentQuery = event.target.value;
+  activeSuggestionIndex = -1;
   await render();
 });
 document.getElementById('searchInput').addEventListener('keydown', async (event) => {
   if (event.key === 'Escape') {
     event.target.value = '';
     currentQuery = '';
+    activeSuggestionIndex = -1;
     await render();
+    return;
+  }
+
+  if (event.key === 'ArrowDown' && latestSearchMatches.length > 0) {
+    event.preventDefault();
+    activeSuggestionIndex = (activeSuggestionIndex + 1) % latestSearchMatches.length;
+    renderSuggestions(latestSearchMatches, currentQuery);
+    return;
+  }
+
+  if (event.key === 'ArrowUp' && latestSearchMatches.length > 0) {
+    event.preventDefault();
+    activeSuggestionIndex = activeSuggestionIndex <= 0 ? latestSearchMatches.length - 1 : activeSuggestionIndex - 1;
+    renderSuggestions(latestSearchMatches, currentQuery);
     return;
   }
 
   if (event.key === 'Enter' && latestSearchMatches.length > 0) {
     event.preventDefault();
-    const first = latestSearchMatches[0];
-    await focusTab(first.id, first.windowId);
-    event.target.value = '';
-    currentQuery = '';
-    await render();
+    const index = activeSuggestionIndex >= 0 ? activeSuggestionIndex : 0;
+    await focusSearchMatch(index);
   }
+});
+document.getElementById('searchInput').addEventListener('focus', () => {
+  renderSuggestions(latestSearchMatches, currentQuery);
+});
+document.getElementById('searchInput').addEventListener('blur', () => {
+  setTimeout(() => {
+    document.getElementById('searchSuggestions').classList.remove('show');
+  }, 120);
 });
 document.getElementById('searchForm').addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -425,17 +506,17 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
   if (!raw) return;
 
   if (latestSearchMatches.length > 0) {
-    const first = latestSearchMatches[0];
-    await focusTab(first.id, first.windowId);
+    const index = activeSuggestionIndex >= 0 ? activeSuggestionIndex : 0;
+    await focusSearchMatch(index);
   } else {
     const url = normalizeSearchInput(raw);
     if (!url) return;
     await openUrl(url);
+    input.value = '';
+    currentQuery = '';
+    activeSuggestionIndex = -1;
+    await render();
   }
-
-  input.value = '';
-  currentQuery = '';
-  await render();
 });
 document.querySelectorAll('.quick-link').forEach((button) => {
   button.addEventListener('click', async () => {

@@ -121,8 +121,10 @@ button { cursor: pointer; }
   text-align: left;
 }
 
-.suggestion-item:hover {
-  background: rgba(255,255,255,0.88);
+.suggestion-item:hover,
+.suggestion-item.active {
+  background: rgba(255,255,255,0.9);
+  transform: translateY(-1px);
 }
 
 .suggestion-favicon {
@@ -142,6 +144,13 @@ button { cursor: pointer; }
 .suggestion-url,
 .suggestion-state {
   display: block;
+}
+
+mark {
+  background: rgba(216, 194, 171, 0.5);
+  color: inherit;
+  border-radius: 4px;
+  padding: 0 2px;
 }
 
 .suggestion-title {
@@ -257,6 +266,16 @@ button { cursor: pointer; }
 .zara-group-card {
   padding: 14px;
   background: var(--surface);
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+
+.zara-group-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(176, 160, 148, 0.12);
+}
+
+.zara-group-card:hover .tab-item {
+  background: rgba(255,255,255,0.7);
 }
 
 .tone-sage { background: var(--tone-sage); }
@@ -274,17 +293,34 @@ button { cursor: pointer; }
   min-width: 0;
 }
 
+.group-badge-wrap {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  position: relative;
+}
+
+.group-favicon,
 .group-badge {
   width: 28px;
   height: 28px;
   border-radius: 999px;
+}
+
+.group-favicon {
+  display: block;
+  object-fit: contain;
+  background: rgba(255,255,255,0.72);
+  padding: 5px;
+}
+
+.group-badge {
   background: rgba(255,255,255,0.7);
   color: var(--text-strong);
   display: grid;
   place-items: center;
   font-size: 12px;
   font-weight: 700;
-  flex: 0 0 auto;
 }
 
 .group-title {
@@ -313,6 +349,12 @@ button { cursor: pointer; }
   gap: 8px;
   align-items: center;
   background: rgba(255,255,255,0.52);
+  transition: background 160ms ease, transform 160ms ease, border-color 160ms ease;
+}
+
+.tab-item:hover {
+  background: rgba(255,255,255,0.88);
+  transform: translateX(2px);
 }
 
 .tab-main {
@@ -322,6 +364,10 @@ button { cursor: pointer; }
   border: none;
   color: inherit;
   padding: 0;
+}
+
+.tab-main:hover .tab-title {
+  color: #3d352f;
 }
 
 .tab-row {
