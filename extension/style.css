@@ -31,6 +31,7 @@ body {
 
 button, a { font: inherit; }
 button { cursor: pointer; }
+[hidden] { display: none !important; }
 
 .shell { position: relative; }
 .shell::before {
@@ -259,19 +260,24 @@ mark {
   letter-spacing: 1px;
 }
 
+.keep-only-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 0 0 14px;
+}
+
 .keep-only-banner {
   display: inline-flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
-  padding: 8px 12px;
-  margin: 0 0 14px;
+  gap: 10px;
+  padding: 6px 10px;
   border: 1px solid rgba(219, 205, 193, 0.72);
   border-radius: 999px;
-  background: rgba(247, 241, 234, 0.9);
+  background: rgba(247, 241, 234, 0.92);
   box-shadow: var(--shadow-card);
-  min-height: 44px;
-  max-width: min(720px, 100%);
+  min-height: 38px;
+  max-width: min(520px, 100%);
 }
 
 .keep-only-copy {
@@ -279,9 +285,9 @@ mark {
 }
 
 .keep-only-text {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-strong);
-  line-height: 1.25;
+  line-height: 1.2;
 }
 
 .keep-only-meta {
@@ -615,6 +621,10 @@ mark {
   .searchbar {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .keep-only-wrap {
+    justify-content: stretch;
   }
 
   .keep-only-banner {

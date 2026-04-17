@@ -263,20 +263,23 @@ async function getDuplicateNewTabPages() {
 }
 
 function renderKeepOnlyBanner(duplicatePages) {
+  const wrap = document.getElementById('keepOnlyWrap');
   const banner = document.getElementById('keepOnlyBanner');
   const text = document.getElementById('keepOnlyText');
   const meta = document.getElementById('keepOnlyMeta');
 
   if (!duplicatePages || duplicatePages.length <= 1) {
-    banner.hidden = true;
     currentKeepOnlyGroup = null;
+    wrap.hidden = true;
+    banner.style.display = 'none';
     return;
   }
 
   currentKeepOnlyGroup = duplicatePages;
   text.textContent = t.keepOnlyPrompt(duplicatePages.length);
   meta.textContent = t.tabsCount(duplicatePages.length);
-  banner.hidden = false;
+  wrap.hidden = false;
+  banner.style.display = 'inline-flex';
 }
 
 async function openUrl(url) {
