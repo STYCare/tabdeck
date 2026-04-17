@@ -11,7 +11,10 @@
     <header class="zara-hero">
       <div class="topbar">
         <form class="searchbar" id="searchForm">
-          <input id="searchInput" type="search" placeholder="搜索网页或直接输入网址" autocomplete="off">
+          <div class="searchbox">
+            <input id="searchInput" type="search" placeholder="搜索已打开标签、网页或直接输入网址" autocomplete="off">
+            <div class="search-suggestions" id="searchSuggestions"></div>
+          </div>
           <button class="btn btn-small btn-primary" type="submit">搜索</button>
         </form>
         <nav class="quick-links" aria-label="常用入口">

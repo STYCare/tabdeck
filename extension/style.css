@@ -66,6 +66,11 @@ button { cursor: pointer; }
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
+  align-items: start;
+}
+
+.searchbox {
+  position: relative;
 }
 
 .searchbar input {
@@ -80,6 +85,76 @@ button { cursor: pointer; }
 }
 
 .searchbar input::placeholder {
+  color: var(--muted);
+}
+
+.search-suggestions {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  display: none;
+  gap: 6px;
+  background: rgba(250, 245, 239, 0.98);
+  border: 1px solid rgba(219, 205, 193, 0.72);
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(176, 160, 148, 0.12);
+  padding: 8px;
+  z-index: 10;
+}
+
+.search-suggestions.show {
+  display: grid;
+}
+
+.suggestion-item {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  border: 0;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.56);
+  color: var(--text-strong);
+  padding: 9px 10px;
+  text-align: left;
+}
+
+.suggestion-item:hover {
+  background: rgba(255,255,255,0.88);
+}
+
+.suggestion-favicon {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  object-fit: contain;
+}
+
+.suggestion-text {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.suggestion-title,
+.suggestion-url,
+.suggestion-state {
+  display: block;
+}
+
+.suggestion-title {
+  font-size: 13px;
+  color: var(--text-strong);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.suggestion-url,
+.suggestion-state {
+  font-size: 11px;
   color: var(--muted);
 }
 
@@ -345,10 +420,15 @@ button { cursor: pointer; }
   gap: 10px;
 }
 
-.empty {
+.empty,
+.search-empty {
   font-size: 12px;
   color: var(--muted);
   padding-top: 4px;
+}
+
+.search-empty {
+  padding: 10px 2px;
 }
 
 @media (max-width: 1380px) {

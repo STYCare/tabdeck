@@ -4,7 +4,12 @@ const STORAGE_KEY = 'qingye.savedTabs';
 const SESSION_KEY = 'qingye.lastSession';
 const MAX_GROUP_TABS = 4;
 const MAX_SAVED_ITEMS = 6;
+const MAX_SEARCH_RESULTS = 6;
 const GROUP_TONES = ['tone-sage', 'tone-cream', 'tone-mist'];
+
+let currentQuery = '';
+let latestTabs = [];
+let latestSearchMatches = [];
 
 async function getAllTabs() {
   const tabs = await chrome.tabs.query({});
@@ -42,6 +47,49 @@ function domainInitial(hostname) {
   return /[A-Z0-9]/.test(first) ? first : '页';
 }
 
+function normalizeSearchInput(input) {
+  const value = input.trim();
+  if (!value) return '';
+  if (/^(https?:\/\/|chrome:\/\/)/i.test(value)) return value;
+  if (/^[\w.-]+\.[a-z]{2,}(\/.*)?$/i.test(value)) return `https://${value}`;
+  return `https://www.google.com/search?q=${encodeURIComponent(value)}`;
+}
+
+function getSearchableText(tab) {
+  return [tab.title || '', tab.url || '', getHostname(tab.url)]
+    .join(' ')
+    .toLowerCase();
+}
+
+function filterTabsByQuery(tabs, query) {
+  const trimmed = query.trim().toLowerCase();
+  if (!trimmed) return tabs;
+  return tabs.filter((tab) => getSearchableText(tab).includes(trimmed));
+}
+
+function getSearchMatches(tabs, query) {
+  const trimmed = query.trim().toLowerCase();
+  if (!trimmed) return [];
+  return tabs
+    .filter((tab) => getSearchableText(tab).includes(trimmed))
+    .sort((a, b) => {
+      const aTitle = (tabScore(a, trimmed));
+      const bTitle = (tabScore(b, trimmed));
+      return bTitle - aTitle;
+    })
+    .slice(0, MAX_SEARCH_RESULTS);
+}
+
+function tabScore(tab, query) {
+  const title = (tab.title || '').toLowerCase();
+  const url = (tab.url || '').toLowerCase();
+  let score = 0;
+  if (title.startsWith(query)) score += 5;
+  if (title.includes(query)) score += 3;
+  if (url.includes(query)) score += 2;
+  return score;
+}
+
 function groupTabs(tabs) {
   const map = new Map();
   for (const tab of tabs) {
@@ -57,14 +105,6 @@ function groupTabs(tabs) {
       hiddenCount: Math.max(items.length - MAX_GROUP_TABS, 0)
     }))
     .sort((a, b) => b.items.length - a.items.length || a.hostname.localeCompare(b.hostname, 'zh-CN'));
-}
-
-function normalizeSearchInput(input) {
-  const value = input.trim();
-  if (!value) return '';
-  if (/^(https?:\/\/|chrome:\/\/)/i.test(value)) return value;
-  if (/^[\w.-]+\.[a-z]{2,}(\/.*)?$/i.test(value)) return `https://${value}`;
-  return `https://www.google.com/search?q=${encodeURIComponent(value)}`;
 }
 
 async function openUrl(url) {
@@ -135,8 +175,55 @@ function cleanTitle(title, url) {
 
 function updateStats(totalTabs, groups, saved) {
   document.getElementById('savedCount').textContent = String(saved);
-  document.getElementById('groupHint').textContent = `${groups} 个站点 · ${totalTabs} 个标签`;
+  document.getElementById('groupHint').textContent = currentQuery
+    ? `筛到 ${groups} 个站点 · ${totalTabs} 个标签`
+    : `${groups} 个站点 · ${totalTabs} 个标签`;
   document.getElementById('savedHint').textContent = saved > MAX_SAVED_ITEMS ? `仅展示前 ${MAX_SAVED_ITEMS} 条` : '暂存区';
+}
+
+function renderSuggestions(matches, query) {
+  const wrap = document.getElementById('searchSuggestions');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+
+  if (!query.trim() || !matches.length) {
+    wrap.classList.remove('show');
+    return;
+  }
+
+  for (const tab of matches) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'suggestion-item';
+
+    const favicon = getFaviconUrl(tab);
+    button.innerHTML = `
+      <img class="suggestion-favicon" src="${favicon}" alt="">
+      <span class="suggestion-text">
+        <span class="suggestion-title">${cleanTitle(tab.title, tab.url)}</span>
+        <span class="suggestion-url">${shortUrl(tab.url)}</span>
+      </span>
+      <span class="suggestion-state">已打开</span>
+    `;
+
+    const img = button.querySelector('.suggestion-favicon');
+    img.addEventListener('error', () => {
+      img.style.display = 'none';
+    });
+
+    button.addEventListener('click', async () => {
+      await focusTab(tab.id, tab.windowId);
+      const input = document.getElementById('searchInput');
+      input.value = '';
+      currentQuery = '';
+      latestSearchMatches = [];
+      await render();
+    });
+
+    wrap.appendChild(button);
+  }
+
+  wrap.classList.add('show');
 }
 
 async function renderSaved() {
@@ -185,6 +272,14 @@ async function renderGroups(tabs) {
   const groups = groupTabs(tabs);
   groupsWrap.innerHTML = '';
 
+  if (!groups.length && currentQuery.trim()) {
+    const empty = document.createElement('div');
+    empty.className = 'search-empty';
+    empty.textContent = '没搜到已打开的标签。回车可以直接搜网页。';
+    groupsWrap.appendChild(empty);
+    return groups;
+  }
+
   for (const [index, group] of groups.entries()) {
     const node = groupTemplate.content.firstElementChild.cloneNode(true);
     const toneClass = GROUP_TONES[index % GROUP_TONES.length];
@@ -232,7 +327,7 @@ async function renderGroups(tabs) {
       list.appendChild(tabNode);
     }
 
-    if (group.hiddenCount > 0) {
+    if (group.hiddenCount > 0 && !currentQuery.trim()) {
       const more = document.createElement('div');
       more.className = 'group-more';
       more.textContent = `还有 ${group.hiddenCount} 个没展开`;
@@ -290,22 +385,57 @@ async function restoreLastSession() {
 }
 
 async function render() {
-  const tabs = await getAllTabs();
+  latestTabs = await getAllTabs();
+  const filteredTabs = filterTabsByQuery(latestTabs, currentQuery);
+  latestSearchMatches = getSearchMatches(latestTabs, currentQuery);
+  renderSuggestions(latestSearchMatches, currentQuery);
   const [groups, saved] = await Promise.all([
-    renderGroups(tabs),
+    renderGroups(filteredTabs),
     renderSaved()
   ]);
-  updateStats(tabs.length, groups.length, saved.length);
+  updateStats(filteredTabs.length, groups.length, saved.length);
 }
 
 document.getElementById('refreshBtn').addEventListener('click', render);
+document.getElementById('searchInput').addEventListener('input', async (event) => {
+  currentQuery = event.target.value;
+  await render();
+});
+document.getElementById('searchInput').addEventListener('keydown', async (event) => {
+  if (event.key === 'Escape') {
+    event.target.value = '';
+    currentQuery = '';
+    await render();
+    return;
+  }
+
+  if (event.key === 'Enter' && latestSearchMatches.length > 0) {
+    event.preventDefault();
+    const first = latestSearchMatches[0];
+    await focusTab(first.id, first.windowId);
+    event.target.value = '';
+    currentQuery = '';
+    await render();
+  }
+});
 document.getElementById('searchForm').addEventListener('submit', async (event) => {
   event.preventDefault();
   const input = document.getElementById('searchInput');
-  const url = normalizeSearchInput(input.value);
-  if (!url) return;
-  await openUrl(url);
+  const raw = input.value.trim();
+  if (!raw) return;
+
+  if (latestSearchMatches.length > 0) {
+    const first = latestSearchMatches[0];
+    await focusTab(first.id, first.windowId);
+  } else {
+    const url = normalizeSearchInput(raw);
+    if (!url) return;
+    await openUrl(url);
+  }
+
   input.value = '';
+  currentQuery = '';
+  await render();
 });
 document.querySelectorAll('.quick-link').forEach((button) => {
   button.addEventListener('click', async () => {
