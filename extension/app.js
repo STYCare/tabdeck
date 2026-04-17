@@ -59,6 +59,34 @@ function groupTabs(tabs) {
     .sort((a, b) => b.items.length - a.items.length || a.hostname.localeCompare(b.hostname, 'zh-CN'));
 }
 
+function getGreetingByHour(hour) {
+  if (hour < 6) return 'Good night';
+  if (hour < 12) return 'Good morning';
+  if (hour < 18) return 'Good afternoon';
+  return 'Good evening';
+}
+
+function formatToday() {
+  const now = new Date();
+  const greeting = getGreetingByHour(now.getHours());
+  const formatted = new Intl.DateTimeFormat('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  }).format(now).toUpperCase();
+  return { greeting, formatted };
+}
+
+function updateHeader() {
+  const greetingText = document.getElementById('greetingText');
+  const todayText = document.getElementById('todayText');
+  if (!greetingText || !todayText) return;
+  const { greeting, formatted } = formatToday();
+  greetingText.textContent = greeting;
+  todayText.textContent = formatted;
+}
+
 async function getSavedTabs() {
   const result = await chrome.storage.local.get([STORAGE_KEY]);
   return Array.isArray(result[STORAGE_KEY]) ? result[STORAGE_KEY] : [];
@@ -111,24 +139,9 @@ function cleanTitle(title, url) {
 }
 
 function updateStats(totalTabs, groups, saved) {
-  document.getElementById('totalTabs').textContent = String(totalTabs);
-  document.getElementById('totalGroups').textContent = String(groups);
   document.getElementById('savedCount').textContent = String(saved);
-  document.getElementById('groupHint').textContent = `共 ${groups} 组，每组先看 ${MAX_GROUP_TABS} 个。`;
-  document.getElementById('savedHint').textContent = saved > MAX_SAVED_ITEMS ? `仅展示前 ${MAX_SAVED_ITEMS} 条` : '';
-
-  const focusSummary = document.getElementById('focusSummary');
-  if (!focusSummary) return;
-
-  if (totalTabs === 0) {
-    focusSummary.textContent = '空了。很安静。';
-  } else if (totalTabs <= 12) {
-    focusSummary.textContent = '还算清爽。';
-  } else if (totalTabs <= 24) {
-    focusSummary.textContent = '有点拥挤。';
-  } else {
-    focusSummary.textContent = '该动刀了。';
-  }
+  document.getElementById('groupHint').textContent = `${groups} 个站点 · ${totalTabs} 个标签`;
+  document.getElementById('savedHint').textContent = saved > MAX_SAVED_ITEMS ? `仅展示前 ${MAX_SAVED_ITEMS} 条` : '暂存区';
 }
 
 async function renderSaved() {
@@ -181,10 +194,8 @@ async function renderGroups(tabs) {
     const node = groupTemplate.content.firstElementChild.cloneNode(true);
     const toneClass = GROUP_TONES[index % GROUP_TONES.length];
     node.classList.add(toneClass);
-    node.querySelector('.group-title').textContent = group.hostname;
-    node.querySelector('.group-meta').textContent = group.hiddenCount > 0
-      ? `${group.items.length} 个标签 · 收起 ${group.hiddenCount} 个`
-      : `${group.items.length} 个标签`;
+    node.querySelector('.group-title').textContent = group.hostname.replace(/^www\./, '');
+    node.querySelector('.group-meta').textContent = `${group.items.length} 个标签`;
     node.querySelector('.group-badge').textContent = domainInitial(group.hostname);
 
     node.querySelector('.focus-group-btn').addEventListener('click', async () => {
@@ -219,7 +230,7 @@ async function renderGroups(tabs) {
     if (group.hiddenCount > 0) {
       const more = document.createElement('div');
       more.className = 'group-more';
-      more.textContent = `还有 ${group.hiddenCount} 个收起来了，先别把页面撑爆。`;
+      more.textContent = `还有 ${group.hiddenCount} 个没展开`;
       list.appendChild(more);
     }
 
@@ -274,6 +285,7 @@ async function restoreLastSession() {
 }
 
 async function render() {
+  updateHeader();
   const tabs = await getAllTabs();
   const [groups, saved] = await Promise.all([
     renderGroups(tabs),

@@ -7,63 +7,46 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main class="app shell">
-    <header class="hero compact-hero cream-hero">
-      <div class="hero-main">
-        <div class="eyebrow">清页 · QingYe</div>
-        <h1>一页看完，顺手清掉。</h1>
-        <p class="subtitle">像整理桌面一样整理标签。轻一点，干净一点，别让注意力碎成渣。</p>
-      </div>
-      <div class="hero-side">
-        <div class="hero-stats compact-stats">
-          <div class="stat-card">
-            <div class="stat-num" id="totalTabs">—</div>
-            <div class="stat-label">标签</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-num" id="totalGroups">—</div>
-            <div class="stat-label">分组</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-num" id="savedCount">—</div>
-            <div class="stat-label">暂存</div>
-          </div>
-          <div class="stat-card stat-card-text" id="focusSummary">准备清理。</div>
-        </div>
+  <main class="app shell zara-app">
+    <header class="zara-hero">
+      <div>
+        <div class="zara-greeting" id="greetingText">Good afternoon</div>
+        <div class="zara-date" id="todayText">FRIDAY, APRIL 17, 2026</div>
       </div>
     </header>
 
-    <section class="toolbar compact-toolbar">
-      <button class="btn btn-primary" id="refreshBtn">刷新</button>
-      <button class="btn" id="saveSessionBtn">保存会话</button>
-      <button class="btn" id="restoreSessionBtn">恢复会话</button>
-      <button class="btn" id="closeDuplicatesBtn">去重</button>
-      <button class="btn btn-danger-soft" id="closeAllBtn">全部关闭</button>
+    <section class="zara-toolbar">
+      <div class="zara-section-title">当前标签</div>
+      <div class="zara-toolbar-right">
+        <span class="zara-meta" id="groupHint"></span>
+        <button class="btn btn-small" id="refreshBtn">刷新</button>
+        <button class="btn btn-small" id="saveSessionBtn">保存会话</button>
+        <button class="btn btn-small" id="restoreSessionBtn">恢复会话</button>
+        <button class="btn btn-small" id="closeDuplicatesBtn">去重</button>
+        <button class="btn btn-small btn-danger-soft" id="closeAllBtn">全部关闭</button>
+      </div>
     </section>
 
-    <section class="layout">
-      <section class="panel main-panel">
-        <div class="panel-head">
-          <h2>当前标签</h2>
-          <span id="groupHint"></span>
-        </div>
-        <div id="groups" class="groups groups-grid"></div>
-      </section>
+    <section class="zara-board-wrap">
+      <section class="zara-board" id="groups"></section>
+    </section>
 
-      <aside class="panel side-panel compact-side-panel saved-panel">
-        <div class="panel-head">
-          <h2>稍后处理</h2>
+    <section class="saved-strip panel saved-panel">
+      <div class="panel-head saved-strip-head">
+        <h2>稍后处理</h2>
+        <div class="saved-strip-meta">
           <span id="savedHint"></span>
+          <span class="saved-strip-count"><span id="savedCount">—</span> 条</span>
         </div>
-        <div id="savedList" class="saved-list"></div>
-        <div id="savedEmpty" class="empty">还没有保存的标签。现在还算清爽。</div>
-      </aside>
+      </div>
+      <div id="savedList" class="saved-list saved-strip-list"></div>
+      <div id="savedEmpty" class="empty">还没有保存的标签。现在还算清爽。</div>
     </section>
   </main>
 
   <template id="groupTemplate">
-    <article class="group-card">
-      <div class="group-top">
+    <article class="group-card zara-group-card">
+      <div class="group-top zara-group-top">
         <div class="group-heading">
           <div class="group-badge"></div>
           <div>
@@ -71,12 +54,12 @@
             <div class="group-meta"></div>
           </div>
         </div>
-        <div class="group-actions-top">
-          <button class="btn btn-small focus-group-btn">专注这个</button>
-          <button class="btn btn-small close-group-btn">关闭这组</button>
-        </div>
       </div>
       <div class="tab-list"></div>
+      <div class="group-footer-actions">
+        <button class="btn btn-small focus-group-btn">专注这个</button>
+        <button class="btn btn-small close-group-btn">关闭这组</button>
+      </div>
     </article>
   </template>
 
