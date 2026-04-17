@@ -609,10 +609,54 @@ mark {
 .group-header-actions {
   margin-left: auto;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 6px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   flex: 0 0 auto;
+}
+
+.group-header-actions .btn {
+  white-space: nowrap;
+}
+
+.group-header-actions .btn-ghost {
+  background: rgba(255,255,255,0.18);
+}
+
+.group-header-actions .btn-ghost:hover {
+  background: rgba(255,255,255,0.66);
+}
+
+.group-header-actions .dedupe-group-btn {
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  color: #9a5a2a;
+  background: rgba(200, 113, 58, 0.08);
+  border-color: rgba(200, 113, 58, 0.16);
+}
+
+.group-header-actions .dedupe-group-btn:hover {
+  background: rgba(200, 113, 58, 0.14);
+}
+
+.group-header-actions .close-group-btn {
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  padding: 0;
+  border-radius: 999px;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.group-header-actions .close-group-btn:hover {
+  background: rgba(255,255,255,0.78);
+}
+
+.group-head-main {
+  padding-right: 4px;
 }
 
 .group-title-row,
@@ -756,9 +800,12 @@ mark {
   .saved-strip-meta,
   .tab-actions,
   .saved-actions,
-  .group-footer-actions,
   .keep-only-actions {
     justify-content: flex-start;
+  }
+
+  .group-header-actions {
+    justify-content: flex-end;
   }
 
   .zara-board { column-count: 1; }

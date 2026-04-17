@@ -689,13 +689,14 @@ async function renderGroups(tabs) {
       groupBadge.textContent = domainInitial(group.hostname, sampleTitle, sampleTab?.url || '');
     });
 
-    node.querySelector('.close-group-btn').textContent = t.closeGroup;
+    const closeGroupBtn = node.querySelector('.close-group-btn');
+    closeGroupBtn.setAttribute('aria-label', t.closeGroup);
+    closeGroupBtn.setAttribute('title', t.closeGroup);
     const dedupeBtn = node.querySelector('.dedupe-group-btn');
     if (duplicateInfo.duplicateCount > 0) {
       dedupeBtn.hidden = false;
       dedupeBtn.textContent = t.dedupeGroup(duplicateInfo.duplicateCount);
-      dedupeBtn.classList.add('btn-primary');
-      node.querySelector('.close-group-btn').classList.remove('btn-danger-soft');
+      dedupeBtn.classList.remove('btn-primary');
       dedupeBtn.addEventListener('click', async () => {
         const confirmed = window.confirm(
           currentLang === 'zh'
@@ -711,7 +712,7 @@ async function renderGroups(tabs) {
       dedupeBtn.classList.remove('btn-primary');
     }
 
-    node.querySelector('.close-group-btn').addEventListener('click', async () => {
+    closeGroupBtn.addEventListener('click', async () => {
       await closeTabs(group.items.map((item) => item.id));
       await render();
     });
