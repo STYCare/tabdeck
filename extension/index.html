@@ -11,10 +11,10 @@
     <header class="zara-hero">
       <div class="topbar">
         <form class="searchbar" id="searchForm">
-          <button class="toolbar-icon-btn" id="searchSubmitBtn" type="submit" aria-label="搜索" title="搜索">
-            <span aria-hidden="true">⌕</span>
-          </button>
           <div class="searchbox">
+            <button class="searchbox-icon" id="searchSubmitBtn" type="submit" aria-label="搜索" title="搜索">
+              <span aria-hidden="true">⌕</span>
+            </button>
             <input id="searchInput" type="search" autocomplete="off">
             <div class="search-suggestions" id="searchSuggestions"></div>
           </div>
@@ -118,6 +118,21 @@
       </div>
     </div>
   </template>
+
+  <div class="modal-shell" id="confirmModal" hidden>
+    <div class="modal-backdrop" data-close-modal></div>
+    <section class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle" aria-describedby="confirmModalBody">
+      <div class="confirm-modal-head">
+        <h3 id="confirmModalTitle"></h3>
+        <button class="btn btn-small btn-ghost modal-close-btn" id="confirmModalCloseBtn" type="button" aria-label="关闭">×</button>
+      </div>
+      <div class="confirm-modal-body" id="confirmModalBody"></div>
+      <div class="confirm-modal-actions">
+        <button class="btn btn-small btn-ghost" id="confirmModalCancelBtn" type="button">取消</button>
+        <button class="btn btn-small btn-danger-soft" id="confirmModalConfirmBtn" type="button">确定</button>
+      </div>
+    </section>
+  </div>
 
   <script src="app.js"></script>
 </body>

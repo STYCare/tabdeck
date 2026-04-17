@@ -26,6 +26,10 @@ const DICTS = {
     dedupeGroup: (count) => `关闭 ${count} 个重复项`,
     duplicateCount: (count) => `${count} 个重复项`,
     closeAll: '全部关闭',
+    confirmTitleCloseAll: '关闭全部标签',
+    confirmBodyCloseAll: (count) => `将关闭当前全部 ${count} 个网页标签。<br><br>这是不可撤销操作。`,
+    cancel: '取消',
+    confirm: '确定',
     saved: '稍后处理',
     savedCountSuffix: '条',
     savedEmpty: '还没有保存的标签。现在还算清爽。',
@@ -62,6 +66,10 @@ const DICTS = {
     dedupeGroup: (count) => `Close ${count} duplicate${count === 1 ? '' : 's'}`,
     duplicateCount: (count) => `${count} duplicate${count === 1 ? '' : 's'}`,
     closeAll: 'Close All',
+    confirmTitleCloseAll: 'Close All Tabs',
+    confirmBodyCloseAll: (count) => `This will close all ${count} open web tabs.<br><br>This cannot be undone.`,
+    cancel: 'Cancel',
+    confirm: 'Continue',
     saved: 'Read Later',
     savedCountSuffix: 'items',
     savedEmpty: 'Nothing saved yet. Still pretty clean.',
@@ -123,6 +131,9 @@ function applyStaticTexts() {
   document.getElementById('closeAllBtn').setAttribute('aria-label', t.closeAll);
   document.getElementById('closeAllBtn').setAttribute('title', t.closeAll);
   document.getElementById('savedTitle').textContent = t.saved;
+  document.getElementById('confirmModalCloseBtn').setAttribute('aria-label', t.cancel);
+  document.getElementById('confirmModalCancelBtn').textContent = t.cancel;
+  document.getElementById('confirmModalConfirmBtn').textContent = t.confirm;
   document.getElementById('savedCountSuffix').textContent = t.savedCountSuffix;
   document.getElementById('savedEmpty').textContent = t.savedEmpty;
   document.getElementById('quickLinksLabel').setAttribute('aria-label', t.quickLinksLabel);
@@ -777,6 +788,56 @@ async function closeAllWebTabs() {
   await closeTabs(tabs.map((tab) => tab.id));
 }
 
+function openConfirmModal({ title, bodyHtml, confirmText, onConfirm }) {
+  const shell = document.getElementById('confirmModal');
+  const titleNode = document.getElementById('confirmModalTitle');
+  const bodyNode = document.getElementById('confirmModalBody');
+  const confirmBtn = document.getElementById('confirmModalConfirmBtn');
+  const cancelBtn = document.getElementById('confirmModalCancelBtn');
+  const closeBtn = document.getElementById('confirmModalCloseBtn');
+  const backdrop = shell.querySelector('[data-close-modal]');
+
+  let resolved = false;
+  const cleanup = () => {
+    shell.hidden = true;
+    confirmBtn.onclick = null;
+    cancelBtn.onclick = null;
+    closeBtn.onclick = null;
+    backdrop.onclick = null;
+    document.onkeydown = null;
+  };
+
+  return new Promise((resolve) => {
+    const cancel = () => {
+      if (resolved) return;
+      resolved = true;
+      cleanup();
+      resolve(false);
+    };
+
+    const confirm = async () => {
+      if (resolved) return;
+      resolved = true;
+      cleanup();
+      if (onConfirm) await onConfirm();
+      resolve(true);
+    };
+
+    titleNode.textContent = title;
+    bodyNode.innerHTML = bodyHtml;
+    confirmBtn.textContent = confirmText || t.confirm;
+    shell.hidden = false;
+
+    confirmBtn.onclick = confirm;
+    cancelBtn.onclick = cancel;
+    closeBtn.onclick = cancel;
+    backdrop.onclick = cancel;
+    document.onkeydown = (event) => {
+      if (event.key === 'Escape') cancel();
+    };
+  });
+}
+
 async function confirmCloseAllTabs() {
   const tabs = await getAllTabs();
   if (!tabs.length) {
@@ -784,10 +845,11 @@ async function confirmCloseAllTabs() {
     return false;
   }
 
-  const message = currentLang === 'zh'
-    ? `将关闭当前全部 ${tabs.length} 个网页标签。\n\n这是不可撤销操作。\n\n确定继续吗？`
-    : `This will close all ${tabs.length} open web tabs.\n\nThis cannot be undone.\n\nContinue?`;
-  return window.confirm(message);
+  return openConfirmModal({
+    title: t.confirmTitleCloseAll,
+    bodyHtml: t.confirmBodyCloseAll(tabs.length),
+    confirmText: t.confirm,
+  });
 }
 
 async function promptEditQuickLinks() {

@@ -64,10 +64,7 @@ button { cursor: pointer; }
 }
 
 .searchbar {
-  display: grid;
-  grid-template-columns: auto minmax(260px, 1fr);
-  gap: 8px;
-  align-items: center;
+  display: block;
 }
 
 .toolbar-icon-btn {
@@ -117,6 +114,29 @@ button { cursor: pointer; }
   position: relative;
 }
 
+.searchbox-icon {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 0;
+  z-index: 1;
+}
+
+.searchbox-icon:hover {
+  background: rgba(255,255,255,0.52);
+  color: var(--text-strong);
+}
+
 .searchbar input {
   width: 100%;
   min-width: 0;
@@ -125,7 +145,7 @@ button { cursor: pointer; }
   background: rgba(255,255,255,0.56);
   color: var(--text-strong);
   border-radius: 10px;
-  padding: 0 14px;
+  padding: 0 14px 0 38px;
   outline: none;
 }
 
@@ -652,16 +672,21 @@ mark {
 
 .tab-actions .icon-only-btn,
 .saved-actions .icon-only-btn {
-  opacity: 0.58;
-  background: rgba(255,255,255,0.28);
+  opacity: 0.12;
+  background: rgba(255,255,255,0.18);
+  transform: translateX(4px);
+  transition: opacity 140ms ease, background 140ms ease, transform 140ms ease;
 }
 
 .tab-item:hover .tab-actions .icon-only-btn,
 .saved-item:hover .saved-actions .icon-only-btn,
 .tab-actions .icon-only-btn:hover,
-.saved-actions .icon-only-btn:hover {
+.saved-actions .icon-only-btn:hover,
+.tab-item:focus-within .tab-actions .icon-only-btn,
+.saved-item:focus-within .saved-actions .icon-only-btn {
   opacity: 1;
   background: rgba(255,255,255,0.82);
+  transform: translateX(0);
 }
 
 .group-top {
@@ -866,4 +891,65 @@ mark {
 
   .zara-board { column-count: 1; }
   .zara-app { padding: 16px; }
+}
+
+.modal-shell {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(71, 63, 57, 0.18);
+  backdrop-filter: blur(6px);
+}
+
+.confirm-modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(420px, calc(100vw - 32px));
+  border-radius: 18px;
+  border: 1px solid rgba(219, 205, 193, 0.72);
+  background: rgba(250, 245, 239, 0.96);
+  box-shadow: 0 24px 60px rgba(176, 160, 148, 0.22);
+  padding: 14px;
+}
+
+.confirm-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.confirm-modal-head h3 {
+  margin: 0;
+  font-size: 15px;
+  color: var(--text-strong);
+}
+
+.modal-close-btn {
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 999px;
+}
+
+.confirm-modal-body {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.confirm-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
 }
