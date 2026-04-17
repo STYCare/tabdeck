@@ -55,6 +55,21 @@ button { cursor: pointer; }
   margin-bottom: 18px;
 }
 
+.brand-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 14px;
+}
+
+.brand-mark {
+  font-size: 14px;
+  line-height: 1;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .topbar {
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) auto;
@@ -186,6 +201,42 @@ mark {
   background: rgba(255,255,255,0.74);
 }
 
+.keep-only-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  margin: 0 0 16px;
+  border: 1px solid rgba(219, 205, 193, 0.72);
+  border-radius: 14px;
+  background: rgba(247, 241, 234, 0.82);
+  box-shadow: var(--shadow-card);
+}
+
+.keep-only-copy {
+  min-width: 0;
+}
+
+.keep-only-text {
+  font-size: 13px;
+  color: var(--text-strong);
+  line-height: 1.45;
+}
+
+.keep-only-meta {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.keep-only-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .zara-toolbar {
   display: flex;
   justify-content: space-between;
@@ -197,10 +248,10 @@ mark {
 }
 
 .zara-section-title {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 18px;
-  color: var(--muted);
-  font-style: italic;
+  font-size: 15px;
+  color: var(--text-strong);
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 .zara-toolbar-right {
@@ -489,6 +540,7 @@ mark {
 }
 
 @media (max-width: 760px) {
+  .keep-only-banner,
   .zara-toolbar,
   .saved-strip-head,
   .tab-item,
@@ -506,7 +558,8 @@ mark {
   .saved-strip-meta,
   .tab-actions,
   .saved-actions,
-  .group-footer-actions {
+  .group-footer-actions,
+  .keep-only-actions {
     justify-content: flex-start;
   }
 

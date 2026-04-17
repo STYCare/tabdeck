@@ -7,6 +7,10 @@ const MAX_GROUP_TABS = 4;
 const MAX_SAVED_ITEMS = 6;
 const MAX_SEARCH_RESULTS = 6;
 const GROUP_TONES = ['tone-sage', 'tone-cream', 'tone-mist'];
+const BRAND = {
+  zh: '清页',
+  en: 'TabMint'
+};
 const DEFAULT_QUICK_LINKS = [
   { name: 'Google', url: 'https://www.google.com' },
   { name: 'GitHub', url: 'https://github.com' },
@@ -18,7 +22,7 @@ const DICTS = {
   zh: {
     searchPlaceholder: '搜索已打开标签、网页或直接输入网址',
     searchButton: '搜索',
-    currentTabs: '当前标签',
+    currentTabs: '标签概览',
     refresh: '刷新',
     saveSession: '保存会话',
     restoreSession: '恢复会话',
@@ -47,12 +51,17 @@ const DICTS = {
     resetQuickLinks: '恢复默认',
     quickLinksPrompt: '按“名称,网址”每行一条，例如\nGoogle,https://www.google.com',
     quickLinksSaved: '快捷入口已更新',
-    quickLinksReset: '已恢复默认快捷入口'
+    quickLinksReset: '已恢复默认快捷入口',
+    keepOnlyPrompt: (count, domain) => `你现在开着 ${count} 个 ${domain} 标签。要只保留这一组吗？`,
+    keepOnlyAction: '关闭其余',
+    dismissPrompt: '先不管',
+    domainsCount: (count) => `${count} 个站点`,
+    tabsCount: (count) => `${count} 个标签`
   },
   en: {
     searchPlaceholder: 'Search open tabs, the web, or enter a URL',
     searchButton: 'Search',
-    currentTabs: 'Open Tabs',
+    currentTabs: 'Workspace',
     refresh: 'Refresh',
     saveSession: 'Save Session',
     restoreSession: 'Restore Session',
@@ -61,7 +70,7 @@ const DICTS = {
     saved: 'Read Later',
     savedCountSuffix: 'items',
     savedEmpty: 'Nothing saved yet. Still pretty clean.',
-    focusThis: 'Focus This',
+    focusThis: 'Keep Only This',
     closeGroup: 'Close Group',
     saveForLater: 'Later',
     closeTab: 'Close',
@@ -69,8 +78,8 @@ const DICTS = {
     remove: 'Remove',
     savedZone: 'Saved',
     showTopSaved: `Showing top ${MAX_SAVED_ITEMS}`,
-    groupHint: (groups, tabs) => `${groups} sites · ${tabs} tabs`,
-    groupHintFiltered: (groups, tabs) => `${groups} sites · ${tabs} filtered tabs`,
+    groupHint: (groups, tabs) => `${groups} domains · ${tabs} tabs`,
+    groupHintFiltered: (groups, tabs) => `${groups} domains · ${tabs} matching tabs`,
     opened: 'Open',
     openedCount: (count) => `${count} open`,
     noSearchMatch: 'No open tabs matched. Press Enter to search the web.',
@@ -81,7 +90,12 @@ const DICTS = {
     resetQuickLinks: 'Reset Default',
     quickLinksPrompt: 'One per line as “name,url”, for example:\nGoogle,https://www.google.com',
     quickLinksSaved: 'Quick links updated',
-    quickLinksReset: 'Quick links reset to defaults'
+    quickLinksReset: 'Quick links reset to defaults',
+    keepOnlyPrompt: (count, domain) => `You have ${count} ${domain} tabs open. Keep just this group?`,
+    keepOnlyAction: 'Close Extras',
+    dismissPrompt: 'Not now',
+    domainsCount: (count) => `${count} domains`,
+    tabsCount: (count) => `${count} tabs`
   }
 };
 
@@ -91,6 +105,7 @@ let latestSearchMatches = [];
 let activeSuggestionIndex = -1;
 let currentLang = 'zh';
 let t = DICTS.zh;
+let currentKeepOnlyGroup = null;
 
 function detectLang() {
   const lang = (chrome.i18n?.getUILanguage?.() || navigator.language || 'zh').toLowerCase();
@@ -104,7 +119,8 @@ function setLang() {
 
 function applyStaticTexts() {
   document.documentElement.lang = currentLang === 'zh' ? 'zh-CN' : 'en';
-  document.title = currentLang === 'zh' ? '清页' : 'QingYe';
+  document.title = BRAND[currentLang];
+  document.getElementById('brandMark').textContent = BRAND[currentLang];
   document.getElementById('searchInput').placeholder = t.searchPlaceholder;
   document.getElementById('searchSubmitBtn').textContent = t.searchButton;
   document.getElementById('currentTabsLabel').textContent = t.currentTabs;
@@ -119,6 +135,8 @@ function applyStaticTexts() {
   document.getElementById('quickLinksLabel').setAttribute('aria-label', t.quickLinksLabel);
   document.getElementById('editQuickLinksBtn').textContent = t.editQuickLinks;
   document.getElementById('resetQuickLinksBtn').textContent = t.resetQuickLinks;
+  document.getElementById('keepOnlyActionBtn').textContent = t.keepOnlyAction;
+  document.getElementById('dismissPromptBtn').textContent = t.dismissPrompt;
 }
 
 async function getAllTabs() {
@@ -236,6 +254,30 @@ function groupTabs(tabs) {
       hiddenCount: Math.max(items.length - MAX_GROUP_TABS, 0)
     }))
     .sort((a, b) => b.items.length - a.items.length || a.hostname.localeCompare(b.hostname, currentLang === 'zh' ? 'zh-CN' : 'en'));
+}
+
+function getKeepOnlyCandidate(groups) {
+  if (currentQuery.trim()) return null;
+  const eligible = groups.filter((group) => group.items.length > 1);
+  if (!eligible.length) return null;
+  return eligible[0];
+}
+
+function renderKeepOnlyBanner(group, totalGroups, totalTabs) {
+  const banner = document.getElementById('keepOnlyBanner');
+  const text = document.getElementById('keepOnlyText');
+  const meta = document.getElementById('keepOnlyMeta');
+
+  if (!group) {
+    banner.hidden = true;
+    currentKeepOnlyGroup = null;
+    return;
+  }
+
+  currentKeepOnlyGroup = group;
+  text.textContent = t.keepOnlyPrompt(group.items.length, normalizeHostname(group.hostname));
+  meta.textContent = `${t.domainsCount(totalGroups)} · ${t.tabsCount(totalTabs)}`;
+  banner.hidden = false;
 }
 
 async function openUrl(url) {
@@ -460,6 +502,8 @@ async function renderGroups(tabs) {
   const groups = groupTabs(tabs);
   groupsWrap.innerHTML = '';
 
+  renderKeepOnlyBanner(getKeepOnlyCandidate(groups), groups.length, tabs.length);
+
   if (!groups.length && currentQuery.trim()) {
     const empty = document.createElement('div');
     empty.className = 'search-empty';
@@ -626,6 +670,17 @@ async function resetQuickLinks() {
   window.alert(t.quickLinksReset);
 }
 
+async function keepOnlyCurrentGroup() {
+  if (!currentKeepOnlyGroup) return;
+  await focusGroup(currentKeepOnlyGroup);
+  await render();
+}
+
+function dismissKeepOnlyBanner() {
+  currentKeepOnlyGroup = null;
+  document.getElementById('keepOnlyBanner').hidden = true;
+}
+
 async function render() {
   latestTabs = await getAllTabs();
   const filteredTabs = filterTabsByQuery(latestTabs, currentQuery);
@@ -706,6 +761,8 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
 });
 document.getElementById('editQuickLinksBtn').addEventListener('click', promptEditQuickLinks);
 document.getElementById('resetQuickLinksBtn').addEventListener('click', resetQuickLinks);
+document.getElementById('keepOnlyActionBtn').addEventListener('click', keepOnlyCurrentGroup);
+document.getElementById('dismissPromptBtn').addEventListener('click', dismissKeepOnlyBanner);
 document.getElementById('saveSessionBtn').addEventListener('click', async () => {
   await saveCurrentSession();
   await render();
