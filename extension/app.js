@@ -60,7 +60,7 @@ const DICTS = {
   en: {
     searchPlaceholder: 'Search open tabs, the web, or enter a URL',
     searchButton: 'Search',
-    currentTabs: 'Workspace',
+    currentTabs: 'Tab Deck',
     refresh: 'Refresh',
     dedupeGroup: (count) => `Close ${count} duplicate${count === 1 ? '' : 's'}`,
     duplicateCount: (count) => `${count} duplicate${count === 1 ? '' : 's'}`,
@@ -94,7 +94,7 @@ const DICTS = {
     quickLinksSaved: 'Quick links updated',
     quickLinksReset: 'Quick links reset to defaults',
     keepOnlyPrompt: (count) => `You have <strong>${count}</strong> TabDeck pages open. Keep just this one?`,
-    keepOnlyAction: 'Close other TabDeck pages'
+    keepOnlyAction: 'Close Extras'
   }
 };
 
