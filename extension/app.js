@@ -161,10 +161,10 @@ function normalizeHostname(hostname) {
   return hostname.replace(/^www\./, '');
 }
 
-function formatHostnameLabel(hostname, sampleTitle = '') {
+function formatHostnameLabel(hostname, sampleTitle = '', sampleUrl = '') {
   const clean = normalizeHostname(hostname).toLowerCase();
+  const lowerUrl = String(sampleUrl || '').toLowerCase();
   const namedHosts = {
-    'google.com': 'Google',
     'github.com': 'GitHub',
     'youtube.com': 'YouTube',
     'colab.research.google.com': 'Google Colab',
@@ -175,6 +175,15 @@ function formatHostnameLabel(hostname, sampleTitle = '') {
     '127.0.0.1': 'Localhost',
     'localhost': 'Localhost'
   };
+
+  if (clean === 'google.com') {
+    if (/\/search(?:[/?#]|$)/.test(lowerUrl)) return 'Google Search';
+    return 'Google';
+  }
+
+  if ((clean === 'chromewebstore.google.com' || clean === 'chrome.google.com') && lowerUrl.includes('/webstore')) {
+    return 'Chrome Web Store';
+  }
 
   if (namedHosts[clean]) return namedHosts[clean];
 
@@ -196,11 +205,12 @@ function formatHostnameLabel(hostname, sampleTitle = '') {
 }
 
 function formatGroupTitle(group) {
-  return formatHostnameLabel(group.hostname, group.items?.[0]?.title || '');
+  const sample = group.items?.[0] || {};
+  return formatHostnameLabel(group.hostname, sample.title || '', sample.url || '');
 }
 
-function domainInitial(hostname, sampleTitle = '') {
-  const label = formatHostnameLabel(hostname, sampleTitle);
+function domainInitial(hostname, sampleTitle = '', sampleUrl = '') {
+  const label = formatHostnameLabel(hostname, sampleTitle, sampleUrl);
   const first = label.charAt(0).toUpperCase();
   return /[A-Z0-9]/.test(first) ? first : (currentLang === 'zh' ? '页' : 'T');
 }
@@ -671,12 +681,12 @@ async function renderGroups(tabs) {
     } else {
       groupFavicon.style.display = 'none';
       groupBadge.style.display = 'grid';
-      groupBadge.textContent = domainInitial(group.hostname, sampleTitle);
+      groupBadge.textContent = domainInitial(group.hostname, sampleTitle, sampleTab?.url || '');
     }
     groupFavicon.addEventListener('error', () => {
       groupFavicon.style.display = 'none';
       groupBadge.style.display = 'grid';
-      groupBadge.textContent = domainInitial(group.hostname, sampleTitle);
+      groupBadge.textContent = domainInitial(group.hostname, sampleTitle, sampleTab?.url || '');
     });
 
     node.querySelector('.close-group-btn').textContent = t.closeGroup;
