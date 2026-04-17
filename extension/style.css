@@ -139,6 +139,16 @@ button { cursor: pointer; }
   stroke-width: 2;
 }
 
+.text-icon-btn {
+  font-size: 15px;
+  font-weight: 500;
+  color: currentColor;
+}
+
+.save-btn.text-icon-btn {
+  font-size: 14px;
+}
+
 .searchbox {
   position: relative;
 }
