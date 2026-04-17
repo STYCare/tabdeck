@@ -54,9 +54,8 @@ const DICTS = {
     quickLinksPrompt: '按“名称,网址”每行一条，例如\nGoogle,https://www.google.com',
     quickLinksSaved: '快捷入口已更新',
     quickLinksReset: '已恢复默认快捷入口',
-    keepOnlyPrompt: (count) => `你现在开着 ${count} 个清页页面。要只保留这一个吗？`,
-    keepOnlyAction: '关闭其他清页',
-    tabsCount: (count) => `${count} 个页面`
+    keepOnlyPrompt: (count) => `你现在开着 <strong>${count}</strong> 个清页页面。要只保留这一个吗？`,
+    keepOnlyAction: '关闭其他清页'
   },
   en: {
     searchPlaceholder: 'Search open tabs, the web, or enter a URL',
@@ -94,9 +93,8 @@ const DICTS = {
     quickLinksPrompt: 'One per line as “name,url”, for example:\nGoogle,https://www.google.com',
     quickLinksSaved: 'Quick links updated',
     quickLinksReset: 'Quick links reset to defaults',
-    keepOnlyPrompt: (count) => `You have ${count} TabDeck pages open. Keep just this one?`,
-    keepOnlyAction: 'Close other TabDeck pages',
-    tabsCount: (count) => `${count} pages`
+    keepOnlyPrompt: (count) => `You have <strong>${count}</strong> TabDeck pages open. Keep just this one?`,
+    keepOnlyAction: 'Close other TabDeck pages'
   }
 };
 
@@ -321,7 +319,6 @@ function renderKeepOnlyBanner(duplicatePages) {
   const wrap = document.getElementById('keepOnlyWrap');
   const banner = document.getElementById('keepOnlyBanner');
   const text = document.getElementById('keepOnlyText');
-  const meta = document.getElementById('keepOnlyMeta');
 
   if (!duplicatePages || duplicatePages.length <= 1) {
     currentKeepOnlyGroup = null;
@@ -331,10 +328,9 @@ function renderKeepOnlyBanner(duplicatePages) {
   }
 
   currentKeepOnlyGroup = duplicatePages;
-  text.textContent = t.keepOnlyPrompt(duplicatePages.length);
-  meta.textContent = t.tabsCount(duplicatePages.length);
+  text.innerHTML = t.keepOnlyPrompt(duplicatePages.length);
   wrap.hidden = false;
-  banner.style.display = 'inline-flex';
+  banner.style.display = 'flex';
 }
 
 async function openUrl(url) {

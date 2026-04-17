@@ -377,39 +377,37 @@ mark {
 .keep-only-wrap {
   display: flex;
   align-items: center;
-  margin: 0;
-  flex: 1 1 auto;
-  min-width: 0;
+  margin: 0 0 12px;
 }
 
 .keep-only-banner {
-  display: inline-flex;
+  width: 100%;
+  display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 8px;
-  padding: 4px 8px;
-  border: 1px solid rgba(219, 205, 193, 0.58);
-  border-radius: 999px;
-  background: rgba(250, 245, 239, 0.7);
+  gap: 12px;
+  padding: 8px 12px;
+  border: 1px solid rgba(219, 205, 193, 0.42);
+  border-radius: 14px;
+  background: rgba(250, 245, 239, 0.52);
   box-shadow: none;
-  min-height: 32px;
-  max-width: min(460px, 100%);
+  min-height: 0;
 }
 
 .keep-only-copy {
   min-width: 0;
+  flex: 1 1 auto;
 }
 
 .keep-only-text {
-  font-size: 10px;
-  color: var(--text-strong);
-  line-height: 1.2;
+  font-size: 12px;
+  color: rgba(71, 63, 57, 0.84);
+  line-height: 1.35;
 }
 
-.keep-only-meta {
-  margin-top: 1px;
-  font-size: 9px;
-  color: var(--muted);
+.keep-only-text strong {
+  font-weight: 700;
+  color: var(--text-strong);
 }
 
 .keep-only-actions {
@@ -417,11 +415,12 @@ mark {
   align-items: center;
   gap: 6px;
   flex-wrap: wrap;
+  flex: 0 0 auto;
 }
 
 .keep-only-actions .btn {
-  height: 26px;
-  padding: 0 10px;
+  height: 28px;
+  padding: 0 12px;
   font-size: 11px;
   border-radius: 999px;
 }
@@ -436,9 +435,6 @@ mark {
   margin-bottom: 18px;
 }
 
-.zara-toolbar > .keep-only-wrap + .zara-section-title {
-  flex: 0 0 auto;
-}
 
 .zara-section-title {
   font-size: 15px;
