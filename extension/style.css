@@ -173,6 +173,36 @@ mark {
   gap: 8px;
   flex-wrap: wrap;
   justify-content: flex-end;
+  align-items: center;
+}
+
+.quick-links-main {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.quick-links-more-wrap {
+  position: relative;
+}
+
+.quick-links-more-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 140px;
+  display: none;
+  gap: 6px;
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(219, 205, 193, 0.72);
+  background: rgba(250, 245, 239, 0.98);
+  box-shadow: 0 10px 24px rgba(176, 160, 148, 0.12);
+  z-index: 12;
+}
+
+.quick-links-more-menu.show {
+  display: grid;
 }
 
 .quick-link {
@@ -185,6 +215,17 @@ mark {
 
 .quick-link:hover {
   background: rgba(255,255,255,0.74);
+}
+
+.quick-link-menu-item {
+  width: 100%;
+  text-align: left;
+  border-radius: 10px;
+}
+
+.utility-link,
+.quick-link-more {
+  background: rgba(255,255,255,0.3);
 }
 
 .keep-only-banner {
@@ -529,6 +570,10 @@ mark {
   .zara-board { column-count: 2; }
   .topbar { grid-template-columns: 1fr; }
   .quick-links { justify-content: flex-start; }
+  .quick-links-more-menu {
+    left: 0;
+    right: auto;
+  }
 }
 
 @media (max-width: 760px) {

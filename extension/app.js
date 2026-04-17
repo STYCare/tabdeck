@@ -47,8 +47,9 @@ const DICTS = {
     hiddenTabs: (count) => `还有 ${count} 个没展开`,
     groupMeta: (count) => `${count} 个标签`,
     quickLinksLabel: '常用入口',
-    editQuickLinks: '编辑快捷入口',
+    editQuickLinks: '编辑',
     resetQuickLinks: '恢复默认',
+    moreLinks: '更多',
     quickLinksPrompt: '按“名称,网址”每行一条，例如\nGoogle,https://www.google.com',
     quickLinksSaved: '快捷入口已更新',
     quickLinksReset: '已恢复默认快捷入口',
@@ -84,8 +85,9 @@ const DICTS = {
     hiddenTabs: (count) => `${count} more hidden`,
     groupMeta: (count) => `${count} tabs`,
     quickLinksLabel: 'Quick Links',
-    editQuickLinks: 'Edit Links',
+    editQuickLinks: 'Edit',
     resetQuickLinks: 'Reset Default',
+    moreLinks: 'More',
     quickLinksPrompt: 'One per line as “name,url”, for example:\nGoogle,https://www.google.com',
     quickLinksSaved: 'Quick links updated',
     quickLinksReset: 'Quick links reset to defaults',
@@ -131,7 +133,7 @@ function applyStaticTexts() {
   document.getElementById('savedEmpty').textContent = t.savedEmpty;
   document.getElementById('quickLinksLabel').setAttribute('aria-label', t.quickLinksLabel);
   document.getElementById('editQuickLinksBtn').textContent = t.editQuickLinks;
-  document.getElementById('resetQuickLinksBtn').textContent = t.resetQuickLinks;
+  document.getElementById('toggleMoreLinksBtn').textContent = t.moreLinks;
   document.getElementById('keepOnlyActionBtn').textContent = t.keepOnlyAction;
 }
 
@@ -436,13 +438,17 @@ function renderSuggestions(matches, query) {
 }
 
 async function renderQuickLinks() {
-  const nav = document.getElementById('quickLinksLabel');
-  const existing = [...nav.querySelectorAll('.quick-link.dynamic-link')];
-  existing.forEach((node) => node.remove());
+  const mainWrap = document.getElementById('quickLinksMain');
+  const moreWrap = document.getElementById('quickLinksMoreWrap');
+  const moreMenu = document.getElementById('quickLinksMoreMenu');
+  mainWrap.innerHTML = '';
+  moreMenu.innerHTML = '';
 
   const quickLinks = await getQuickLinks();
-  const resetBtn = document.getElementById('resetQuickLinksBtn');
-  quickLinks.forEach((item) => {
+  const primaryLinks = quickLinks.slice(0, 3);
+  const extraLinks = quickLinks.slice(3);
+
+  primaryLinks.forEach((item) => {
     const button = document.createElement('button');
     button.className = 'quick-link dynamic-link';
     button.dataset.url = item.url;
@@ -450,7 +456,20 @@ async function renderQuickLinks() {
     button.addEventListener('click', async () => {
       await openUrl(item.url);
     });
-    nav.insertBefore(button, resetBtn);
+    mainWrap.appendChild(button);
+  });
+
+  moreWrap.hidden = extraLinks.length === 0;
+  extraLinks.forEach((item) => {
+    const button = document.createElement('button');
+    button.className = 'quick-link quick-link-menu-item';
+    button.dataset.url = item.url;
+    button.textContent = item.name;
+    button.addEventListener('click', async () => {
+      moreMenu.classList.remove('show');
+      await openUrl(item.url);
+    });
+    moreMenu.appendChild(button);
   });
 }
 
@@ -668,6 +687,11 @@ async function resetQuickLinks() {
   window.alert(t.quickLinksReset);
 }
 
+function toggleMoreLinksMenu() {
+  const menu = document.getElementById('quickLinksMoreMenu');
+  menu.classList.toggle('show');
+}
+
 async function keepOnlyCurrentGroup() {
   if (!currentKeepOnlyGroup || currentKeepOnlyGroup.length <= 1) return;
 
@@ -775,7 +799,7 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
   }
 });
 document.getElementById('editQuickLinksBtn').addEventListener('click', promptEditQuickLinks);
-document.getElementById('resetQuickLinksBtn').addEventListener('click', resetQuickLinks);
+document.getElementById('toggleMoreLinksBtn').addEventListener('click', toggleMoreLinksMenu);
 document.getElementById('keepOnlyActionBtn').addEventListener('click', keepOnlyCurrentGroup);
 document.getElementById('saveSessionBtn').addEventListener('click', async () => {
   await saveCurrentSession();
@@ -792,6 +816,14 @@ document.getElementById('closeDuplicatesBtn').addEventListener('click', async ()
 document.getElementById('closeAllBtn').addEventListener('click', async () => {
   await closeAllWebTabs();
   await render();
+});
+
+document.addEventListener('click', (event) => {
+  const moreWrap = document.getElementById('quickLinksMoreWrap');
+  const moreMenu = document.getElementById('quickLinksMoreMenu');
+  if (!moreWrap.contains(event.target)) {
+    moreMenu.classList.remove('show');
+  }
 });
 
 render();

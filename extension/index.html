@@ -18,8 +18,12 @@
           <button class="btn btn-small btn-primary" id="searchSubmitBtn" type="submit">搜索</button>
         </form>
         <nav class="quick-links" id="quickLinksLabel" aria-label="常用入口">
-          <button class="quick-link utility-link" id="editQuickLinksBtn" type="button">编辑快捷入口</button>
-          <button class="quick-link utility-link" id="resetQuickLinksBtn" type="button">恢复默认</button>
+          <div class="quick-links-main" id="quickLinksMain"></div>
+          <div class="quick-links-more-wrap" id="quickLinksMoreWrap" hidden>
+            <button class="quick-link quick-link-more" id="toggleMoreLinksBtn" type="button">更多</button>
+            <div class="quick-links-more-menu" id="quickLinksMoreMenu"></div>
+          </div>
+          <button class="quick-link utility-link" id="editQuickLinksBtn" type="button">编辑</button>
         </nav>
       </div>
     </header>
