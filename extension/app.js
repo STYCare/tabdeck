@@ -612,6 +612,7 @@ function getDuplicateInfo(items) {
   const urlMap = new Map();
   const duplicateIds = [];
   const duplicateMap = new Map();
+  const uniqueItems = [];
 
   for (const item of items) {
     const normalized = normalizeUrl(item.url);
@@ -621,6 +622,7 @@ function getDuplicateInfo(items) {
   }
 
   for (const bucket of urlMap.values()) {
+    uniqueItems.push(bucket[0]);
     if (bucket.length > 1) {
       duplicateIds.push(...bucket.slice(1).map((tab) => tab.id));
       duplicateMap.set(normalizeUrl(bucket[0].url), bucket.length);
@@ -630,7 +632,8 @@ function getDuplicateInfo(items) {
   return {
     duplicateCount: duplicateIds.length,
     duplicateIds,
-    duplicateMap
+    duplicateMap,
+    uniqueItems
   };
 }
 
@@ -718,7 +721,7 @@ async function renderGroups(tabs) {
     });
 
     const list = node.querySelector('.tab-list');
-    for (const tab of group.items.slice(0, MAX_GROUP_TABS)) {
+    for (const tab of duplicateInfo.uniqueItems.slice(0, MAX_GROUP_TABS)) {
       const tabNode = tabTemplate.content.firstElementChild.cloneNode(true);
       const normalizedUrl = normalizeUrl(tab.url);
       const duplicateCopies = duplicateInfo.duplicateMap.get(normalizedUrl) || 0;
@@ -759,10 +762,11 @@ async function renderGroups(tabs) {
       list.appendChild(tabNode);
     }
 
-    if (group.hiddenCount > 0 && !currentQuery.trim()) {
+    const hiddenUniqueCount = Math.max(duplicateInfo.uniqueItems.length - MAX_GROUP_TABS, 0);
+    if (hiddenUniqueCount > 0 && !currentQuery.trim()) {
       const more = document.createElement('div');
       more.className = 'group-more';
-      more.textContent = t.hiddenTabs(group.hiddenCount);
+      more.textContent = t.hiddenTabs(hiddenUniqueCount);
       list.appendChild(more);
     }
 
