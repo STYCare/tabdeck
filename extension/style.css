@@ -134,6 +134,11 @@ button { cursor: pointer; }
   height: 16px;
 }
 
+.tab-actions .ui-icon,
+.saved-actions .ui-icon {
+  stroke-width: 2;
+}
+
 .searchbox {
   position: relative;
 }
@@ -714,10 +719,11 @@ mark {
 
 .tab-actions .icon-only-btn,
 .saved-actions .icon-only-btn {
-  opacity: 0.12;
-  background: rgba(255,255,255,0.18);
+  opacity: 0.42;
+  color: rgba(71, 63, 57, 0.68);
+  background: rgba(255,255,255,0.34);
   transform: translateX(4px);
-  transition: opacity 140ms ease, background 140ms ease, transform 140ms ease;
+  transition: opacity 140ms ease, background 140ms ease, transform 140ms ease, color 140ms ease;
 }
 
 .tab-item:hover .tab-actions .icon-only-btn,
@@ -727,6 +733,7 @@ mark {
 .tab-item:focus-within .tab-actions .icon-only-btn,
 .saved-item:focus-within .saved-actions .icon-only-btn {
   opacity: 1;
+  color: var(--text-strong);
   background: rgba(255,255,255,0.82);
   transform: translateX(0);
 }
