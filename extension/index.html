@@ -9,9 +9,17 @@
 <body>
   <main class="app shell zara-app">
     <header class="zara-hero">
-      <div>
-        <div class="zara-greeting" id="greetingText">Good afternoon</div>
-        <div class="zara-date" id="todayText">FRIDAY, APRIL 17, 2026</div>
+      <div class="topbar">
+        <form class="searchbar" id="searchForm">
+          <input id="searchInput" type="search" placeholder="搜索网页或直接输入网址" autocomplete="off">
+          <button class="btn btn-small btn-primary" type="submit">搜索</button>
+        </form>
+        <nav class="quick-links" aria-label="常用入口">
+          <button class="quick-link" data-url="https://www.google.com">Google</button>
+          <button class="quick-link" data-url="https://github.com">GitHub</button>
+          <button class="quick-link" data-url="https://www.youtube.com">YouTube</button>
+          <button class="quick-link" data-url="chrome://bookmarks/">收藏夹</button>
+        </nav>
       </div>
     </header>
 

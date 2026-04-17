@@ -59,32 +59,17 @@ function groupTabs(tabs) {
     .sort((a, b) => b.items.length - a.items.length || a.hostname.localeCompare(b.hostname, 'zh-CN'));
 }
 
-function getGreetingByHour(hour) {
-  if (hour < 6) return 'Good night';
-  if (hour < 12) return 'Good morning';
-  if (hour < 18) return 'Good afternoon';
-  return 'Good evening';
+function normalizeSearchInput(input) {
+  const value = input.trim();
+  if (!value) return '';
+  if (/^(https?:\/\/|chrome:\/\/)/i.test(value)) return value;
+  if (/^[\w.-]+\.[a-z]{2,}(\/.*)?$/i.test(value)) return `https://${value}`;
+  return `https://www.google.com/search?q=${encodeURIComponent(value)}`;
 }
 
-function formatToday() {
-  const now = new Date();
-  const greeting = getGreetingByHour(now.getHours());
-  const formatted = new Intl.DateTimeFormat('en-US', {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric'
-  }).format(now).toUpperCase();
-  return { greeting, formatted };
-}
-
-function updateHeader() {
-  const greetingText = document.getElementById('greetingText');
-  const todayText = document.getElementById('todayText');
-  if (!greetingText || !todayText) return;
-  const { greeting, formatted } = formatToday();
-  greetingText.textContent = greeting;
-  todayText.textContent = formatted;
+async function openUrl(url) {
+  if (!url) return;
+  await chrome.tabs.create({ url });
 }
 
 async function getSavedTabs() {
@@ -305,7 +290,6 @@ async function restoreLastSession() {
 }
 
 async function render() {
-  updateHeader();
   const tabs = await getAllTabs();
   const [groups, saved] = await Promise.all([
     renderGroups(tabs),
@@ -315,6 +299,19 @@ async function render() {
 }
 
 document.getElementById('refreshBtn').addEventListener('click', render);
+document.getElementById('searchForm').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const input = document.getElementById('searchInput');
+  const url = normalizeSearchInput(input.value);
+  if (!url) return;
+  await openUrl(url);
+  input.value = '';
+});
+document.querySelectorAll('.quick-link').forEach((button) => {
+  button.addEventListener('click', async () => {
+    await openUrl(button.dataset.url || '');
+  });
+});
 document.getElementById('saveSessionBtn').addEventListener('click', async () => {
   await saveCurrentSession();
   await render();

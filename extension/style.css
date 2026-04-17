@@ -55,17 +55,51 @@ button { cursor: pointer; }
   margin-bottom: 18px;
 }
 
-.zara-greeting {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 26px;
-  color: var(--text-strong);
-  margin-bottom: 6px;
+.topbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) auto;
+  gap: 14px;
+  align-items: center;
 }
 
-.zara-date {
-  font-size: 12px;
-  letter-spacing: 0.08em;
+.searchbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.searchbar input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(219, 205, 193, 0.72);
+  background: rgba(255,255,255,0.56);
+  color: var(--text-strong);
+  border-radius: 10px;
+  padding: 11px 14px;
+  outline: none;
+}
+
+.searchbar input::placeholder {
   color: var(--muted);
+}
+
+.quick-links {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.quick-link {
+  border: 1px solid rgba(219, 205, 193, 0.72);
+  background: rgba(255,255,255,0.46);
+  color: var(--text-strong);
+  border-radius: 999px;
+  padding: 8px 12px;
+}
+
+.quick-link:hover {
+  background: rgba(255,255,255,0.74);
 }
 
 .zara-toolbar {
@@ -324,13 +358,16 @@ button { cursor: pointer; }
 @media (max-width: 1080px) {
   .zara-app { padding: 20px; }
   .zara-board { column-count: 2; }
+  .topbar { grid-template-columns: 1fr; }
+  .quick-links { justify-content: flex-start; }
 }
 
 @media (max-width: 760px) {
   .zara-toolbar,
   .saved-strip-head,
   .tab-item,
-  .saved-item {
+  .saved-item,
+  .searchbar {
     display: grid;
     grid-template-columns: 1fr;
   }
