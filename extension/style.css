@@ -33,6 +33,17 @@ button, a { font: inherit; }
 button { cursor: pointer; }
 [hidden] { display: none !important; }
 
+.ui-icon {
+  width: 18px;
+  height: 18px;
+  display: block;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
 .shell { position: relative; }
 .shell::before {
   content: '';
@@ -79,11 +90,16 @@ button { cursor: pointer; }
   border-radius: 999px;
   padding: 0;
   line-height: 1;
-  font-size: 18px;
 }
 
 .toolbar-icon-btn:hover {
   background: rgba(255,255,255,0.74);
+}
+
+.toolbar-icon-btn .ui-icon,
+.quick-link-more .ui-icon {
+  width: 18px;
+  height: 18px;
 }
 
 .toolbar-icon-btn-danger {
@@ -105,11 +121,17 @@ button { cursor: pointer; }
   align-items: center;
   justify-content: center;
   line-height: 1;
-  font-size: 16px;
 }
 
 .icon-only-btn:hover {
   background: rgba(255,255,255,0.88);
+}
+
+.icon-only-btn .ui-icon,
+.close-group-btn .ui-icon,
+.modal-close-btn .ui-icon {
+  width: 16px;
+  height: 16px;
 }
 
 .searchbox {
@@ -132,12 +154,16 @@ button { cursor: pointer; }
   border-radius: 999px;
   padding: 0;
   z-index: 1;
-  font-size: 18px;
 }
 
 .searchbox-icon:hover {
   background: rgba(255,255,255,0.52);
   color: var(--text-strong);
+}
+
+.searchbox-icon .ui-icon {
+  width: 18px;
+  height: 18px;
 }
 
 .searchbar input {
