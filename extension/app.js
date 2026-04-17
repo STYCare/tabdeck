@@ -133,6 +133,16 @@ function shortUrl(url) {
   }
 }
 
+function getFaviconUrl(tab) {
+  if (tab.favIconUrl) return tab.favIconUrl;
+  try {
+    const { origin } = new URL(tab.url);
+    return `${origin}/favicon.ico`;
+  } catch {
+    return '';
+  }
+}
+
 function cleanTitle(title, url) {
   if (!title) return url;
   return title.replace(/^\(\d+\)\s*/, '').trim();
@@ -213,6 +223,16 @@ async function renderGroups(tabs) {
       const tabNode = tabTemplate.content.firstElementChild.cloneNode(true);
       tabNode.querySelector('.tab-title').textContent = cleanTitle(tab.title, tab.url);
       tabNode.querySelector('.tab-url').textContent = shortUrl(tab.url);
+      const favicon = tabNode.querySelector('.tab-favicon');
+      const faviconUrl = getFaviconUrl(tab);
+      if (faviconUrl) {
+        favicon.src = faviconUrl;
+      } else {
+        favicon.style.display = 'none';
+      }
+      favicon.addEventListener('error', () => {
+        favicon.style.display = 'none';
+      });
       tabNode.querySelector('.tab-main').addEventListener('click', async () => {
         await focusTab(tab.id, tab.windowId);
       });

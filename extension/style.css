@@ -215,6 +215,26 @@ button { cursor: pointer; }
   padding: 0;
 }
 
+.tab-row {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+}
+
+.tab-favicon {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  margin-top: 2px;
+  object-fit: contain;
+  background: rgba(255,255,255,0.55);
+}
+
+.tab-text {
+  min-width: 0;
+}
+
 .tab-title,
 .saved-link {
   color: var(--text-strong);
@@ -313,6 +333,10 @@ button { cursor: pointer; }
   .saved-item {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .tab-row {
+    grid-template-columns: 16px minmax(0, 1fr);
   }
 
   .zara-toolbar-right,
