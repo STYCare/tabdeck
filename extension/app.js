@@ -603,7 +603,6 @@ async function renderSaved() {
 }
 
 async function focusGroup(group) {
-  await saveCurrentSession();
   const currentTabs = await getAllTabs();
   const keepIds = new Set(group.items.map((item) => item.id));
   const closeIds = currentTabs.filter((tab) => !keepIds.has(tab.id)).map((tab) => tab.id);
@@ -613,6 +612,7 @@ async function focusGroup(group) {
 function getDuplicateInfo(items) {
   const urlMap = new Map();
   const duplicateIds = [];
+  const duplicateMap = new Map();
 
   for (const item of items) {
     const normalized = normalizeUrl(item.url);
@@ -624,12 +624,14 @@ function getDuplicateInfo(items) {
   for (const bucket of urlMap.values()) {
     if (bucket.length > 1) {
       duplicateIds.push(...bucket.slice(1).map((tab) => tab.id));
+      duplicateMap.set(normalizeUrl(bucket[0].url), bucket.length);
     }
   }
 
   return {
     duplicateCount: duplicateIds.length,
-    duplicateIds
+    duplicateIds,
+    duplicateMap
   };
 }
 
@@ -690,6 +692,8 @@ async function renderGroups(tabs) {
     if (duplicateInfo.duplicateCount > 0) {
       dedupeBtn.hidden = false;
       dedupeBtn.textContent = t.dedupeGroup(duplicateInfo.duplicateCount);
+      dedupeBtn.classList.add('btn-primary');
+      node.querySelector('.close-group-btn').classList.remove('btn-danger-soft');
       dedupeBtn.addEventListener('click', async () => {
         const confirmed = window.confirm(
           currentLang === 'zh'
@@ -702,6 +706,7 @@ async function renderGroups(tabs) {
       });
     } else {
       dedupeBtn.hidden = true;
+      dedupeBtn.classList.remove('btn-primary');
     }
     node.querySelector('.focus-group-btn').addEventListener('click', async () => {
       await focusGroup(group);
@@ -716,8 +721,17 @@ async function renderGroups(tabs) {
     const list = node.querySelector('.tab-list');
     for (const tab of group.items.slice(0, MAX_GROUP_TABS)) {
       const tabNode = tabTemplate.content.firstElementChild.cloneNode(true);
-      tabNode.querySelector('.tab-title').innerHTML = highlightMatch(cleanTitle(tab.title, tab.url), currentQuery);
+      const normalizedUrl = normalizeUrl(tab.url);
+      const duplicateCopies = duplicateInfo.duplicateMap.get(normalizedUrl) || 0;
+      const cleanTabTitle = cleanTitle(tab.title, tab.url);
+      const titleHtml = highlightMatch(cleanTabTitle, currentQuery);
+      tabNode.querySelector('.tab-title').innerHTML = duplicateCopies > 1
+        ? `${titleHtml} <span class="tab-duplicate-count">(${duplicateCopies}×)</span>`
+        : titleHtml;
       tabNode.querySelector('.tab-url').innerHTML = highlightMatch(shortUrl(tab.url), currentQuery);
+      if (duplicateCopies > 1) {
+        tabNode.classList.add('tab-item-duplicate');
+      }
       const favicon = tabNode.querySelector('.tab-favicon');
       const faviconUrl = getFaviconUrl(tab);
       if (faviconUrl) {
