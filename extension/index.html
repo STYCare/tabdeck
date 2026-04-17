@@ -12,22 +12,20 @@
       <div class="topbar">
         <form class="searchbar" id="searchForm">
           <div class="searchbox">
-            <input id="searchInput" type="search" placeholder="搜索已打开标签、网页或直接输入网址" autocomplete="off">
+            <input id="searchInput" type="search" autocomplete="off">
             <div class="search-suggestions" id="searchSuggestions"></div>
           </div>
-          <button class="btn btn-small btn-primary" type="submit">搜索</button>
+          <button class="btn btn-small btn-primary" id="searchSubmitBtn" type="submit">搜索</button>
         </form>
-        <nav class="quick-links" aria-label="常用入口">
-          <button class="quick-link" data-url="https://www.google.com">Google</button>
-          <button class="quick-link" data-url="https://github.com">GitHub</button>
-          <button class="quick-link" data-url="https://www.youtube.com">YouTube</button>
-          <button class="quick-link" data-url="chrome://bookmarks/">收藏夹</button>
+        <nav class="quick-links" id="quickLinksLabel" aria-label="常用入口">
+          <button class="quick-link utility-link" id="editQuickLinksBtn" type="button">编辑快捷入口</button>
+          <button class="quick-link utility-link" id="resetQuickLinksBtn" type="button">恢复默认</button>
         </nav>
       </div>
     </header>
 
     <section class="zara-toolbar">
-      <div class="zara-section-title">当前标签</div>
+      <div class="zara-section-title" id="currentTabsLabel">当前标签</div>
       <div class="zara-toolbar-right">
         <span class="zara-meta" id="groupHint"></span>
         <button class="btn btn-small" id="refreshBtn">刷新</button>
@@ -44,10 +42,10 @@
 
     <section class="saved-strip panel saved-panel">
       <div class="panel-head saved-strip-head">
-        <h2>稍后处理</h2>
+        <h2 id="savedTitle">稍后处理</h2>
         <div class="saved-strip-meta">
           <span id="savedHint"></span>
-          <span class="saved-strip-count"><span id="savedCount">—</span> 条</span>
+          <span class="saved-strip-count"><span id="savedCount">—</span> <span id="savedCountSuffix">条</span></span>
         </div>
       </div>
       <div id="savedList" class="saved-list saved-strip-list"></div>

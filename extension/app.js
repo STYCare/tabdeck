@@ -2,15 +2,124 @@
 
 const STORAGE_KEY = 'qingye.savedTabs';
 const SESSION_KEY = 'qingye.lastSession';
+const QUICK_LINKS_KEY = 'qingye.quickLinks';
 const MAX_GROUP_TABS = 4;
 const MAX_SAVED_ITEMS = 6;
 const MAX_SEARCH_RESULTS = 6;
 const GROUP_TONES = ['tone-sage', 'tone-cream', 'tone-mist'];
+const DEFAULT_QUICK_LINKS = [
+  { name: 'Google', url: 'https://www.google.com' },
+  { name: 'GitHub', url: 'https://github.com' },
+  { name: 'YouTube', url: 'https://www.youtube.com' },
+  { name: 'Bookmarks', url: 'chrome://bookmarks/' }
+];
+
+const DICTS = {
+  zh: {
+    searchPlaceholder: '搜索已打开标签、网页或直接输入网址',
+    searchButton: '搜索',
+    currentTabs: '当前标签',
+    refresh: '刷新',
+    saveSession: '保存会话',
+    restoreSession: '恢复会话',
+    dedupe: '去重',
+    closeAll: '全部关闭',
+    saved: '稍后处理',
+    savedCountSuffix: '条',
+    savedEmpty: '还没有保存的标签。现在还算清爽。',
+    focusThis: '专注这个',
+    closeGroup: '关闭这组',
+    saveForLater: '稍后',
+    closeTab: '关闭',
+    open: '打开',
+    remove: '移除',
+    savedZone: '暂存区',
+    showTopSaved: `仅展示前 ${MAX_SAVED_ITEMS} 条`,
+    groupHint: (groups, tabs) => `${groups} 个站点 · ${tabs} 个标签`,
+    groupHintFiltered: (groups, tabs) => `筛到 ${groups} 个站点 · ${tabs} 个标签`,
+    opened: '已打开',
+    openedCount: (count) => `已开 ${count} 个`,
+    noSearchMatch: '没搜到已打开的标签。回车可以直接搜网页。',
+    hiddenTabs: (count) => `还有 ${count} 个没展开`,
+    groupMeta: (count) => `${count} 个标签`,
+    quickLinksLabel: '常用入口',
+    editQuickLinks: '编辑快捷入口',
+    resetQuickLinks: '恢复默认',
+    quickLinksPrompt: '按“名称,网址”每行一条，例如\nGoogle,https://www.google.com',
+    quickLinksSaved: '快捷入口已更新',
+    quickLinksReset: '已恢复默认快捷入口'
+  },
+  en: {
+    searchPlaceholder: 'Search open tabs, the web, or enter a URL',
+    searchButton: 'Search',
+    currentTabs: 'Open Tabs',
+    refresh: 'Refresh',
+    saveSession: 'Save Session',
+    restoreSession: 'Restore Session',
+    dedupe: 'Deduplicate',
+    closeAll: 'Close All',
+    saved: 'Read Later',
+    savedCountSuffix: 'items',
+    savedEmpty: 'Nothing saved yet. Still pretty clean.',
+    focusThis: 'Focus This',
+    closeGroup: 'Close Group',
+    saveForLater: 'Later',
+    closeTab: 'Close',
+    open: 'Open',
+    remove: 'Remove',
+    savedZone: 'Saved',
+    showTopSaved: `Showing top ${MAX_SAVED_ITEMS}`,
+    groupHint: (groups, tabs) => `${groups} sites · ${tabs} tabs`,
+    groupHintFiltered: (groups, tabs) => `${groups} sites · ${tabs} filtered tabs`,
+    opened: 'Open',
+    openedCount: (count) => `${count} open`,
+    noSearchMatch: 'No open tabs matched. Press Enter to search the web.',
+    hiddenTabs: (count) => `${count} more hidden`,
+    groupMeta: (count) => `${count} tabs`,
+    quickLinksLabel: 'Quick Links',
+    editQuickLinks: 'Edit Links',
+    resetQuickLinks: 'Reset Default',
+    quickLinksPrompt: 'One per line as “name,url”, for example:\nGoogle,https://www.google.com',
+    quickLinksSaved: 'Quick links updated',
+    quickLinksReset: 'Quick links reset to defaults'
+  }
+};
 
 let currentQuery = '';
 let latestTabs = [];
 let latestSearchMatches = [];
 let activeSuggestionIndex = -1;
+let currentLang = 'zh';
+let t = DICTS.zh;
+
+function detectLang() {
+  const lang = (chrome.i18n?.getUILanguage?.() || navigator.language || 'zh').toLowerCase();
+  return lang.startsWith('zh') ? 'zh' : 'en';
+}
+
+function setLang() {
+  currentLang = detectLang();
+  t = DICTS[currentLang] || DICTS.zh;
+}
+
+function applyStaticTexts() {
+  document.documentElement.lang = currentLang === 'zh' ? 'zh-CN' : 'en';
+  document.title = currentLang === 'zh' ? '清页' : 'QingYe';
+  document.getElementById('searchInput').placeholder = t.searchPlaceholder;
+  document.getElementById('searchSubmitBtn').textContent = t.searchButton;
+  document.getElementById('currentTabsLabel').textContent = t.currentTabs;
+  document.getElementById('refreshBtn').textContent = t.refresh;
+  document.getElementById('saveSessionBtn').textContent = t.saveSession;
+  document.getElementById('restoreSessionBtn').textContent = t.restoreSession;
+  document.getElementById('closeDuplicatesBtn').textContent = t.dedupe;
+  document.getElementById('closeAllBtn').textContent = t.closeAll;
+  document.getElementById('savedTitle').textContent = t.saved;
+  document.getElementById('savedCountSuffix').textContent = t.savedCountSuffix;
+  document.getElementById('savedEmpty').textContent = t.savedEmpty;
+  document.getElementById('quickLinksLabel').setAttribute('aria-label', t.quickLinksLabel);
+  document.getElementById('editQuickLinksBtn').textContent = t.editQuickLinks;
+  document.getElementById('resetQuickLinksBtn').textContent = t.resetQuickLinks;
+}
 
 async function getAllTabs() {
   const tabs = await chrome.tabs.query({});
@@ -36,9 +145,9 @@ function normalizeUrl(url) {
 
 function getHostname(url) {
   try {
-    return new URL(url).hostname || '未知页面';
+    return new URL(url).hostname || (currentLang === 'zh' ? '未知页面' : 'Unknown');
   } catch {
-    return '本地文件';
+    return currentLang === 'zh' ? '本地文件' : 'Local file';
   }
 }
 
@@ -46,8 +155,14 @@ function normalizeHostname(hostname) {
   return hostname.replace(/^www\./, '');
 }
 
+function domainInitial(hostname) {
+  const clean = normalizeHostname(hostname);
+  const first = clean.charAt(0).toUpperCase();
+  return /[A-Z0-9]/.test(first) ? first : (currentLang === 'zh' ? '页' : 'T');
+}
+
 function escapeHtml(text) {
-  return text
+  return String(text || '')
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
@@ -120,7 +235,7 @@ function groupTabs(tabs) {
       items,
       hiddenCount: Math.max(items.length - MAX_GROUP_TABS, 0)
     }))
-    .sort((a, b) => b.items.length - a.items.length || a.hostname.localeCompare(b.hostname, 'zh-CN'));
+    .sort((a, b) => b.items.length - a.items.length || a.hostname.localeCompare(b.hostname, currentLang === 'zh' ? 'zh-CN' : 'en'));
 }
 
 async function openUrl(url) {
@@ -147,6 +262,17 @@ async function getSavedTabs() {
 
 async function setSavedTabs(items) {
   await chrome.storage.local.set({ [STORAGE_KEY]: items });
+}
+
+async function getQuickLinks() {
+  const result = await chrome.storage.local.get([QUICK_LINKS_KEY]);
+  return Array.isArray(result[QUICK_LINKS_KEY]) && result[QUICK_LINKS_KEY].length
+    ? result[QUICK_LINKS_KEY]
+    : DEFAULT_QUICK_LINKS;
+}
+
+async function setQuickLinks(items) {
+  await chrome.storage.local.set({ [QUICK_LINKS_KEY]: items });
 }
 
 async function saveTab(tab) {
@@ -204,9 +330,9 @@ function cleanTitle(title, url) {
 function updateStats(totalTabs, groups, saved) {
   document.getElementById('savedCount').textContent = String(saved);
   document.getElementById('groupHint').textContent = currentQuery
-    ? `筛到 ${groups} 个站点 · ${totalTabs} 个标签`
-    : `${groups} 个站点 · ${totalTabs} 个标签`;
-  document.getElementById('savedHint').textContent = saved > MAX_SAVED_ITEMS ? `仅展示前 ${MAX_SAVED_ITEMS} 条` : '暂存区';
+    ? t.groupHintFiltered(groups, totalTabs)
+    : t.groupHint(groups, totalTabs);
+  document.getElementById('savedHint').textContent = saved > MAX_SAVED_ITEMS ? t.showTopSaved : t.savedZone;
 }
 
 function renderSuggestions(matches, query) {
@@ -244,7 +370,7 @@ function renderSuggestions(matches, query) {
         <span class="suggestion-title">${highlightMatch(cleanTitle(tab.title, tab.url), query)}</span>
         <span class="suggestion-url">${highlightMatch(shortUrl(tab.url), query)}</span>
       </span>
-      <span class="suggestion-state">${hostCount > 1 ? `已开 ${hostCount} 个` : '已打开'}</span>
+      <span class="suggestion-state">${hostCount > 1 ? t.openedCount(hostCount) : t.opened}</span>
     `;
 
     const img = button.querySelector('.suggestion-favicon');
@@ -267,6 +393,25 @@ function renderSuggestions(matches, query) {
   wrap.classList.add('show');
 }
 
+async function renderQuickLinks() {
+  const nav = document.getElementById('quickLinksLabel');
+  const existing = [...nav.querySelectorAll('.quick-link.dynamic-link')];
+  existing.forEach((node) => node.remove());
+
+  const quickLinks = await getQuickLinks();
+  const resetBtn = document.getElementById('resetQuickLinksBtn');
+  quickLinks.forEach((item) => {
+    const button = document.createElement('button');
+    button.className = 'quick-link dynamic-link';
+    button.dataset.url = item.url;
+    button.textContent = item.name;
+    button.addEventListener('click', async () => {
+      await openUrl(item.url);
+    });
+    nav.insertBefore(button, resetBtn);
+  });
+}
+
 async function renderSaved() {
   const list = document.getElementById('savedList');
   const empty = document.getElementById('savedEmpty');
@@ -286,6 +431,8 @@ async function renderSaved() {
     const link = node.querySelector('.saved-link');
     link.href = item.url;
     link.textContent = item.title;
+    node.querySelector('.reopen-btn').textContent = t.open;
+    node.querySelector('.remove-saved-btn').textContent = t.remove;
     node.querySelector('.reopen-btn').addEventListener('click', async () => {
       await chrome.tabs.create({ url: item.url });
     });
@@ -316,7 +463,7 @@ async function renderGroups(tabs) {
   if (!groups.length && currentQuery.trim()) {
     const empty = document.createElement('div');
     empty.className = 'search-empty';
-    empty.textContent = '没搜到已打开的标签。回车可以直接搜网页。';
+    empty.textContent = t.noSearchMatch;
     groupsWrap.appendChild(empty);
     return groups;
   }
@@ -327,7 +474,7 @@ async function renderGroups(tabs) {
     node.classList.add(toneClass);
     const host = normalizeHostname(group.hostname);
     node.querySelector('.group-title').textContent = host;
-    node.querySelector('.group-meta').textContent = `${group.items.length} 个标签`;
+    node.querySelector('.group-meta').textContent = t.groupMeta(group.items.length);
 
     const groupFavicon = node.querySelector('.group-favicon');
     const groupBadge = node.querySelector('.group-badge');
@@ -348,6 +495,8 @@ async function renderGroups(tabs) {
       groupBadge.textContent = domainInitial(group.hostname);
     });
 
+    node.querySelector('.focus-group-btn').textContent = t.focusThis;
+    node.querySelector('.close-group-btn').textContent = t.closeGroup;
     node.querySelector('.focus-group-btn').addEventListener('click', async () => {
       await focusGroup(group);
       await render();
@@ -373,6 +522,10 @@ async function renderGroups(tabs) {
       favicon.addEventListener('error', () => {
         favicon.style.display = 'none';
       });
+      tabNode.querySelector('.save-btn').textContent = t.saveForLater;
+      tabNode.querySelector('.close-btn').textContent = t.closeTab;
+      tabNode.querySelector('.save-btn').title = t.saveForLater;
+      tabNode.querySelector('.close-btn').title = t.closeTab;
       tabNode.querySelector('.tab-main').addEventListener('click', async () => {
         await focusTab(tab.id, tab.windowId);
       });
@@ -390,7 +543,7 @@ async function renderGroups(tabs) {
     if (group.hiddenCount > 0 && !currentQuery.trim()) {
       const more = document.createElement('div');
       more.className = 'group-more';
-      more.textContent = `还有 ${group.hiddenCount} 个没展开`;
+      more.textContent = t.hiddenTabs(group.hiddenCount);
       list.appendChild(more);
     }
 
@@ -444,6 +597,35 @@ async function restoreLastSession() {
   }
 }
 
+async function promptEditQuickLinks() {
+  const current = await getQuickLinks();
+  const seed = current.map((item) => `${item.name},${item.url}`).join('\n');
+  const result = window.prompt(t.quickLinksPrompt, seed);
+  if (result === null) return;
+  const parsed = result
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const parts = line.split(',');
+      const name = (parts.shift() || '').trim();
+      const url = parts.join(',').trim();
+      return { name, url };
+    })
+    .filter((item) => item.name && item.url);
+
+  if (!parsed.length) return;
+  await setQuickLinks(parsed);
+  await renderQuickLinks();
+  window.alert(t.quickLinksSaved);
+}
+
+async function resetQuickLinks() {
+  await setQuickLinks(DEFAULT_QUICK_LINKS);
+  await renderQuickLinks();
+  window.alert(t.quickLinksReset);
+}
+
 async function render() {
   latestTabs = await getAllTabs();
   const filteredTabs = filterTabsByQuery(latestTabs, currentQuery);
@@ -451,10 +633,14 @@ async function render() {
   renderSuggestions(latestSearchMatches, currentQuery);
   const [groups, saved] = await Promise.all([
     renderGroups(filteredTabs),
-    renderSaved()
+    renderSaved(),
+    renderQuickLinks()
   ]);
   updateStats(filteredTabs.length, groups.length, saved.length);
 }
+
+setLang();
+applyStaticTexts();
 
 document.getElementById('refreshBtn').addEventListener('click', render);
 document.getElementById('searchInput').addEventListener('input', async (event) => {
@@ -518,11 +704,8 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
     await render();
   }
 });
-document.querySelectorAll('.quick-link').forEach((button) => {
-  button.addEventListener('click', async () => {
-    await openUrl(button.dataset.url || '');
-  });
-});
+document.getElementById('editQuickLinksBtn').addEventListener('click', promptEditQuickLinks);
+document.getElementById('resetQuickLinksBtn').addEventListener('click', resetQuickLinks);
 document.getElementById('saveSessionBtn').addEventListener('click', async () => {
   await saveCurrentSession();
   await render();
