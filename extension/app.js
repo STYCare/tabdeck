@@ -668,9 +668,22 @@ async function renderGroups(tabs) {
     node.querySelector('.group-meta').textContent = t.groupMeta(group.items.length);
     pillsWrap.innerHTML = '';
     if (duplicateInfo.duplicateCount > 0) {
-      const duplicatePill = document.createElement('span');
-      duplicatePill.className = 'group-pill group-pill-duplicate';
-      duplicatePill.textContent = t.duplicateCount(duplicateInfo.duplicateCount);
+      const duplicatePill = document.createElement('button');
+      duplicatePill.type = 'button';
+      duplicatePill.className = 'group-pill group-pill-duplicate group-pill-action';
+      duplicatePill.setAttribute('title', t.dedupeGroup(duplicateInfo.duplicateCount));
+      duplicatePill.setAttribute('aria-label', t.dedupeGroup(duplicateInfo.duplicateCount));
+      duplicatePill.innerHTML = `${escapeHtml(t.duplicateCount(duplicateInfo.duplicateCount))}<span class="group-pill-close" aria-hidden="true">×</span>`;
+      duplicatePill.addEventListener('click', async () => {
+        const confirmed = window.confirm(
+          currentLang === 'zh'
+            ? `将关闭这一组里 ${duplicateInfo.duplicateCount} 个重复标签，并保留每个页面 1 个。\n\n确定继续吗？`
+            : `This will close ${duplicateInfo.duplicateCount} duplicate tabs in this group and keep one copy of each page.\n\nContinue?`
+        );
+        if (!confirmed) return;
+        await closeTabs(duplicateInfo.duplicateIds);
+        await render();
+      });
       pillsWrap.appendChild(duplicatePill);
     }
 
@@ -697,25 +710,6 @@ async function renderGroups(tabs) {
     const closeGroupBtn = node.querySelector('.close-group-btn');
     closeGroupBtn.setAttribute('aria-label', t.closeGroup);
     closeGroupBtn.setAttribute('title', t.closeGroup);
-    const dedupeBtn = node.querySelector('.dedupe-group-btn');
-    if (duplicateInfo.duplicateCount > 0) {
-      dedupeBtn.hidden = false;
-      dedupeBtn.textContent = t.dedupeGroup(duplicateInfo.duplicateCount);
-      dedupeBtn.classList.remove('btn-primary');
-      dedupeBtn.addEventListener('click', async () => {
-        const confirmed = window.confirm(
-          currentLang === 'zh'
-            ? `将关闭这一组里 ${duplicateInfo.duplicateCount} 个重复标签，并保留每个页面 1 个。\n\n确定继续吗？`
-            : `This will close ${duplicateInfo.duplicateCount} duplicate tabs in this group and keep one copy of each page.\n\nContinue?`
-        );
-        if (!confirmed) return;
-        await closeTabs(duplicateInfo.duplicateIds);
-        await render();
-      });
-    } else {
-      dedupeBtn.hidden = true;
-      dedupeBtn.classList.remove('btn-primary');
-    }
 
     closeGroupBtn.addEventListener('click', async () => {
       await closeTabs(group.items.map((item) => item.id));
