@@ -47,7 +47,7 @@ const DICTS = {
     hiddenTabs: (count) => `还有 ${count} 个没展开`,
     groupMeta: (count) => `${count} 个标签`,
     quickLinksLabel: '常用入口',
-    editQuickLinks: '编辑',
+    editQuickLinks: '编辑快捷入口',
     resetQuickLinks: '恢复默认',
     moreLinks: '更多',
     quickLinksPrompt: '按“名称,网址”每行一条，例如\nGoogle,https://www.google.com',
@@ -85,7 +85,7 @@ const DICTS = {
     hiddenTabs: (count) => `${count} more hidden`,
     groupMeta: (count) => `${count} tabs`,
     quickLinksLabel: 'Quick Links',
-    editQuickLinks: 'Edit',
+    editQuickLinks: 'Edit Links',
     resetQuickLinks: 'Reset Default',
     moreLinks: 'More',
     quickLinksPrompt: 'One per line as “name,url”, for example:\nGoogle,https://www.google.com',
@@ -132,8 +132,7 @@ function applyStaticTexts() {
   document.getElementById('savedCountSuffix').textContent = t.savedCountSuffix;
   document.getElementById('savedEmpty').textContent = t.savedEmpty;
   document.getElementById('quickLinksLabel').setAttribute('aria-label', t.quickLinksLabel);
-  document.getElementById('editQuickLinksBtn').textContent = t.editQuickLinks;
-  document.getElementById('toggleMoreLinksBtn').textContent = t.moreLinks;
+  document.getElementById('toggleMoreLinksBtn').setAttribute('aria-label', t.moreLinks);
   document.getElementById('keepOnlyActionBtn').textContent = t.keepOnlyAction;
 }
 
@@ -437,6 +436,57 @@ function renderSuggestions(matches, query) {
   wrap.classList.add('show');
 }
 
+function getQuickLinkInitial(name) {
+  const label = String(name || '').trim();
+  const first = label.charAt(0).toUpperCase();
+  return first || '•';
+}
+
+function getQuickLinkIconUrl(url) {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol === 'chrome:') return '';
+    return `${parsed.origin}/favicon.ico`;
+  } catch {
+    return '';
+  }
+}
+
+function buildQuickLinkButton(item, className = 'quick-link-icon dynamic-link') {
+  const button = document.createElement('button');
+  button.className = className;
+  button.dataset.url = item.url;
+  button.title = item.name;
+  button.setAttribute('aria-label', item.name);
+
+  const iconUrl = getQuickLinkIconUrl(item.url);
+  if (iconUrl) {
+    const img = document.createElement('img');
+    img.className = 'quick-link-favicon';
+    img.src = iconUrl;
+    img.alt = '';
+    img.addEventListener('error', () => {
+      img.remove();
+      const fallback = document.createElement('span');
+      fallback.className = 'quick-link-fallback';
+      fallback.textContent = getQuickLinkInitial(item.name);
+      button.appendChild(fallback);
+    }, { once: true });
+    button.appendChild(img);
+  } else {
+    const fallback = document.createElement('span');
+    fallback.className = 'quick-link-fallback';
+    fallback.textContent = getQuickLinkInitial(item.name);
+    button.appendChild(fallback);
+  }
+
+  button.addEventListener('click', async () => {
+    await openUrl(item.url);
+  });
+
+  return button;
+}
+
 async function renderQuickLinks() {
   const mainWrap = document.getElementById('quickLinksMain');
   const moreWrap = document.getElementById('quickLinksMoreWrap');
@@ -449,26 +499,37 @@ async function renderQuickLinks() {
   const extraLinks = quickLinks.slice(3);
 
   primaryLinks.forEach((item) => {
-    const button = document.createElement('button');
-    button.className = 'quick-link dynamic-link';
-    button.dataset.url = item.url;
-    button.textContent = item.name;
-    button.addEventListener('click', async () => {
-      await openUrl(item.url);
-    });
-    mainWrap.appendChild(button);
+    mainWrap.appendChild(buildQuickLinkButton(item));
   });
 
-  moreWrap.hidden = extraLinks.length === 0;
-  extraLinks.forEach((item) => {
+  const moreItems = [...extraLinks];
+  moreItems.push({ name: t.editQuickLinks, action: 'edit' });
+  moreItems.push({ name: t.resetQuickLinks, action: 'reset' });
+
+  moreWrap.hidden = moreItems.length === 0;
+  moreItems.forEach((item) => {
     const button = document.createElement('button');
     button.className = 'quick-link quick-link-menu-item';
-    button.dataset.url = item.url;
     button.textContent = item.name;
-    button.addEventListener('click', async () => {
-      moreMenu.classList.remove('show');
-      await openUrl(item.url);
-    });
+
+    if (item.action === 'edit') {
+      button.addEventListener('click', async () => {
+        moreMenu.classList.remove('show');
+        await promptEditQuickLinks();
+      });
+    } else if (item.action === 'reset') {
+      button.addEventListener('click', async () => {
+        moreMenu.classList.remove('show');
+        await resetQuickLinks();
+      });
+    } else {
+      button.dataset.url = item.url;
+      button.addEventListener('click', async () => {
+        moreMenu.classList.remove('show');
+        await openUrl(item.url);
+      });
+    }
+
     moreMenu.appendChild(button);
   });
 }
@@ -798,7 +859,6 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
     await render();
   }
 });
-document.getElementById('editQuickLinksBtn').addEventListener('click', promptEditQuickLinks);
 document.getElementById('toggleMoreLinksBtn').addEventListener('click', toggleMoreLinksMenu);
 document.getElementById('keepOnlyActionBtn').addEventListener('click', keepOnlyCurrentGroup);
 document.getElementById('saveSessionBtn').addEventListener('click', async () => {

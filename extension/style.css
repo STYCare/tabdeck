@@ -182,6 +182,36 @@ mark {
   flex-wrap: wrap;
 }
 
+.quick-link-icon {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(219, 205, 193, 0.72);
+  background: rgba(255,255,255,0.46);
+  color: var(--text-strong);
+  border-radius: 999px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.quick-link-icon:hover {
+  background: rgba(255,255,255,0.74);
+}
+
+.quick-link-favicon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.quick-link-fallback {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+}
+
 .quick-links-more-wrap {
   position: relative;
 }
@@ -223,9 +253,10 @@ mark {
   border-radius: 10px;
 }
 
-.utility-link,
 .quick-link-more {
   background: rgba(255,255,255,0.3);
+  font-size: 16px;
+  letter-spacing: 1px;
 }
 
 .keep-only-banner {
