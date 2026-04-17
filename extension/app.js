@@ -29,7 +29,6 @@ const DICTS = {
     saved: '稍后处理',
     savedCountSuffix: '条',
     savedEmpty: '还没有保存的标签。现在还算清爽。',
-    focusThis: '专注这个',
     closeGroup: '关闭这组',
     saveForLater: '稍后',
     closeTab: '关闭',
@@ -66,7 +65,6 @@ const DICTS = {
     saved: 'Read Later',
     savedCountSuffix: 'items',
     savedEmpty: 'Nothing saved yet. Still pretty clean.',
-    focusThis: 'Keep Only This',
     closeGroup: 'Close Group',
     saveForLater: 'Later',
     closeTab: 'Close',
@@ -601,13 +599,6 @@ async function renderSaved() {
   return items;
 }
 
-async function focusGroup(group) {
-  const currentTabs = await getAllTabs();
-  const keepIds = new Set(group.items.map((item) => item.id));
-  const closeIds = currentTabs.filter((tab) => !keepIds.has(tab.id)).map((tab) => tab.id);
-  await closeTabs(closeIds);
-}
-
 function getDuplicateInfo(items) {
   const urlMap = new Map();
   const duplicateIds = [];
@@ -688,7 +679,6 @@ async function renderGroups(tabs) {
       groupBadge.textContent = domainInitial(group.hostname, sampleTitle);
     });
 
-    node.querySelector('.focus-group-btn').textContent = t.focusThis;
     node.querySelector('.close-group-btn').textContent = t.closeGroup;
     const dedupeBtn = node.querySelector('.dedupe-group-btn');
     if (duplicateInfo.duplicateCount > 0) {
@@ -710,10 +700,6 @@ async function renderGroups(tabs) {
       dedupeBtn.hidden = true;
       dedupeBtn.classList.remove('btn-primary');
     }
-    node.querySelector('.focus-group-btn').addEventListener('click', async () => {
-      await focusGroup(group);
-      await render();
-    });
 
     node.querySelector('.close-group-btn').addEventListener('click', async () => {
       await closeTabs(group.items.map((item) => item.id));

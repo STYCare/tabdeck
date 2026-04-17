@@ -589,11 +589,13 @@ mark {
 
 .group-footer-actions {
   margin-top: 12px;
+  justify-content: flex-end;
 }
 
 .dedupe-group-btn {
   background: rgba(255,255,255,0.72);
   border-color: rgba(200, 113, 58, 0.18);
+  order: 1;
 }
 
 .dedupe-group-btn:hover {
@@ -602,29 +604,15 @@ mark {
 
 .close-group-btn {
   opacity: 0.82;
+  order: 2;
 }
 
 .close-group-btn:hover {
   opacity: 1;
 }
 
-.group-footer-actions .focus-group-btn {
-  order: 1;
-}
-
-.group-footer-actions .dedupe-group-btn {
-  order: 2;
-}
-
-.group-footer-actions .close-group-btn {
-  order: 3;
-}
-
-.group-footer-actions .focus-group-btn + .close-group-btn:last-child {
-  margin-left: auto;
-}
-
-.group-footer-actions .focus-group-btn + .dedupe-group-btn {
+.group-footer-actions .dedupe-group-btn[hidden] + .close-group-btn,
+.group-footer-actions .close-group-btn:only-child {
   margin-left: auto;
 }
 
