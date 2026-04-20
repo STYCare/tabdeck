@@ -128,7 +128,7 @@ function applyStaticTexts() {
   document.getElementById('refreshBtn').setAttribute('title', t.refresh);
   document.getElementById('closeAllBtn').setAttribute('aria-label', t.closeAll);
   document.getElementById('closeAllBtn').setAttribute('title', t.closeAll);
-  document.getElementById('savedTitle').textContent = t.saved;
+  document.querySelector('#savedTitle .saved-title-text').textContent = t.saved;
   document.getElementById('confirmModalCloseBtn').setAttribute('aria-label', t.cancel);
   document.getElementById('confirmModalCancelBtn').textContent = t.cancel;
   document.getElementById('confirmModalConfirmBtn').textContent = t.confirm;

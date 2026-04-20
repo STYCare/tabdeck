@@ -152,24 +152,21 @@ button { cursor: pointer; }
   stroke-linejoin: round;
 }
 
-.row-action-icon-save {
-  width: 17px;
-  height: 17px;
-}
-
-.row-action-icon-save circle {
-  fill: currentColor;
-  opacity: 0.16;
-  stroke: none;
-}
-
-.row-action-icon-save path {
-  stroke-width: 2.15;
-}
-
+.row-action-icon-bookmark,
 .row-action-icon-open {
   width: 17px;
   height: 17px;
+}
+
+.row-action-icon-bookmark {
+  fill: currentColor;
+  stroke: none;
+  opacity: 0.84;
+}
+
+.row-action-icon-open,
+.row-action-icon-close {
+  stroke-width: 2.15;
 }
 
 .searchbox {
@@ -750,10 +747,11 @@ mark {
 .tab-actions .icon-only-btn,
 .saved-actions .icon-only-btn {
   opacity: 1;
-  color: rgba(71, 63, 57, 0.72);
-  background: rgba(255,255,255,0.54);
-  border: 1px solid rgba(219, 205, 193, 0.52);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.55);
+  color: rgba(92, 85, 78, 0.72);
+  background: rgba(255,255,255,0.38);
+  border: 1px solid rgba(219, 205, 193, 0.34);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.42);
+  backdrop-filter: blur(6px);
   transform: none;
   transition: background 140ms ease, border-color 140ms ease, color 140ms ease, box-shadow 140ms ease;
 }
@@ -765,9 +763,9 @@ mark {
 .tab-item:focus-within .tab-actions .icon-only-btn,
 .saved-item:focus-within .saved-actions .icon-only-btn {
   color: var(--text-strong);
-  background: rgba(255,255,255,0.9);
-  border-color: rgba(219, 205, 193, 0.72);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.78), 0 2px 8px rgba(176, 160, 148, 0.08);
+  background: rgba(255,255,255,0.76);
+  border-color: rgba(219, 205, 193, 0.58);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.72), 0 2px 8px rgba(176, 160, 148, 0.06);
 }
 
 .group-top {
@@ -891,6 +889,25 @@ mark {
   margin: 0;
   font-size: 15px;
   color: var(--text-strong);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.saved-title-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  color: rgba(92, 85, 78, 0.7);
+}
+
+.saved-bookmark-icon {
+  width: 16px;
+  height: 16px;
+  display: block;
+  fill: currentColor;
 }
 
 .saved-strip-meta {
