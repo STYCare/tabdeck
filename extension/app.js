@@ -176,6 +176,24 @@ function normalizeHostname(hostname) {
   return hostname.replace(/^www\./, '');
 }
 
+function getRegistrableCore(parts) {
+  const publicSuffixPairs = new Set([
+    'com.cn', 'net.cn', 'org.cn', 'gov.cn', 'edu.cn',
+    'com.hk', 'com.tw', 'com.au', 'com.sg', 'co.uk', 'org.uk', 'gov.uk',
+    'co.jp', 'co.kr', 'co.nz', 'com.br', 'com.mx', 'com.tr', 'com.sa'
+  ]);
+
+  if (!parts.length) return '';
+  if (parts.length === 1) return parts[0];
+
+  const suffixPair = `${parts[parts.length - 2]}.${parts[parts.length - 1]}`;
+  if (parts.length >= 3 && publicSuffixPairs.has(suffixPair)) {
+    return parts[parts.length - 3];
+  }
+
+  return parts[parts.length - 2];
+}
+
 function formatHostnameLabel(hostname, sampleTitle = '', sampleUrl = '') {
   const clean = normalizeHostname(hostname).toLowerCase();
   const lowerUrl = String(sampleUrl || '').toLowerCase();
@@ -211,7 +229,7 @@ function formatHostnameLabel(hostname, sampleTitle = '', sampleUrl = '') {
   const parts = clean.split('.').filter(Boolean);
   if (!parts.length) return hostname;
 
-  const core = parts.length >= 2 ? parts[parts.length - 2] : parts[0];
+  const core = getRegistrableCore(parts);
   return core
     .split(/[-_]/g)
     .filter(Boolean)
