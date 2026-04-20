@@ -54,6 +54,8 @@ const DICTS = {
     quickLinksPrompt: '按“名称,网址”每行一条，例如\nGoogle,https://www.google.com',
     quickLinksSaved: '快捷入口已更新',
     quickLinksReset: '已恢复默认快捷入口',
+    savedDone: '已加入稍后处理',
+    removedDone: '已从稍后处理中移除',
     dedupeDone: (count) => `已清理 ${count} 个重复标签`,
     keepOnlyPrompt: (count) => `你现在开着 <strong>${count}</strong> 个 Tab Deck 页面。要只保留这一个吗？`,
     keepOnlyAction: '关闭其他 Tab Deck'
@@ -94,6 +96,8 @@ const DICTS = {
     quickLinksPrompt: 'One per line as “name,url”, for example:\nGoogle,https://www.google.com',
     quickLinksSaved: 'Quick links updated',
     quickLinksReset: 'Quick links reset to defaults',
+    savedDone: 'Saved to Read Later',
+    removedDone: 'Removed from Read Later',
     dedupeDone: (count) => `Cleared ${count} duplicate tab${count === 1 ? '' : 's'}`,
     keepOnlyPrompt: (count) => `You have <strong>${count}</strong> Tab Deck pages open. Keep just this one?`,
     keepOnlyAction: 'Close Extras'
@@ -617,6 +621,7 @@ async function renderSaved() {
     });
     node.querySelector('.remove-saved-btn').addEventListener('click', async () => {
       await removeSaved(item.id);
+      showMiniToast(t.removedDone);
       await render();
     });
     list.appendChild(node);
@@ -754,6 +759,7 @@ async function renderGroups(tabs) {
       });
       tabNode.querySelector('.save-btn').addEventListener('click', async () => {
         await saveTab(tab);
+        showMiniToast(t.savedDone);
         await render();
       });
       tabNode.querySelector('.close-btn').addEventListener('click', async () => {
