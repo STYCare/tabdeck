@@ -161,6 +161,17 @@ button { cursor: pointer; }
   opacity: 0.2;
 }
 
+.text-icon-btn {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  color: currentColor;
+}
+
+.save-btn.text-icon-btn {
+  font-size: 13px;
+}
+
 .searchbox {
   position: relative;
 }
