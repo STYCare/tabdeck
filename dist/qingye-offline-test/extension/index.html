@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tab Deck</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app shell zara-app">
+    <header class="zara-hero">
+      <div class="topbar">
+        <form class="searchbar" id="searchForm">
+          <div class="searchbox">
+            <button class="searchbox-icon" id="searchSubmitBtn" type="submit" aria-label="搜索" title="搜索">
+              <svg class="ui-icon" viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="4.75"></circle><path d="M12 12l4 4"></path></svg>
+            </button>
+            <input id="searchInput" type="search" autocomplete="off">
+            <div class="search-suggestions" id="searchSuggestions"></div>
+          </div>
+        </form>
+        <nav class="quick-links" id="quickLinksLabel" aria-label="常用入口">
+          <div class="quick-links-main" id="quickLinksMain"></div>
+          <div class="quick-links-more-wrap" id="quickLinksMoreWrap" hidden>
+            <button class="quick-link-icon quick-link-more" id="toggleMoreLinksBtn" type="button" aria-label="更多"><svg class="ui-icon" viewBox="0 0 20 20" aria-hidden="true"><circle cx="4" cy="10" r="1.3" fill="currentColor" stroke="none"></circle><circle cx="10" cy="10" r="1.3" fill="currentColor" stroke="none"></circle><circle cx="16" cy="10" r="1.3" fill="currentColor" stroke="none"></circle></svg></button>
+            <div class="quick-links-more-menu" id="quickLinksMoreMenu"></div>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <div class="keep-only-wrap" id="keepOnlyWrap" hidden>
+      <section class="keep-only-banner" id="keepOnlyBanner">
+        <div class="keep-only-copy">
+          <div class="keep-only-text" id="keepOnlyText"></div>
+        </div>
+        <div class="keep-only-actions">
+          <button class="btn btn-small btn-primary" id="keepOnlyActionBtn" type="button">关闭其他 Tab Deck</button>
+        </div>
+      </section>
+    </div>
+
+    <section class="zara-toolbar">
+      <div class="zara-section-title" id="currentTabsLabel">当前标签</div>
+      <div class="zara-toolbar-right">
+        <span class="zara-meta" id="groupHint"></span>
+        <button class="toolbar-icon-btn" id="refreshBtn" aria-label="刷新" title="刷新"><svg class="ui-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M15.5 8.5A5.5 5.5 0 1 0 16 11"></path><path d="M13 4.5h3v3"></path></svg></button>
+        <button class="toolbar-icon-btn toolbar-icon-btn-danger" id="closeAllBtn" aria-label="全部关闭" title="全部关闭"><svg class="ui-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 6l8 8M14 6l-8 8"></path></svg></button>
+      </div>
+    </section>
+
+    <section class="zara-board-wrap">
+      <section class="zara-board" id="groups"></section>
+    </section>
+
+    <section class="saved-strip panel saved-panel">
+      <div class="panel-head saved-strip-head">
+        <h2 id="savedTitle"><span class="saved-title-icon" aria-hidden="true"><svg class="saved-bookmark-icon" viewBox="0 0 20 20"><path d="M6.5 4.5h7a1 1 0 0 1 1 1v10.2l-4.5-2.8-4.5 2.8V5.5a1 1 0 0 1 1-1Z"></path></svg></span><span class="saved-title-text">稍后处理</span></h2>
+        <div class="saved-strip-meta">
+          <span id="savedHint"></span>
+          <span class="saved-strip-count"><span id="savedCount">—</span> <span id="savedCountSuffix">条</span></span>
+        </div>
+      </div>
+      <div id="savedList" class="saved-list saved-strip-list"></div>
+      <div id="savedEmpty" class="empty">还没有保存的标签。现在还算清爽。</div>
+    </section>
+  </main>
+
+  <template id="groupTemplate">
+    <article class="group-card zara-group-card">
+      <div class="group-top zara-group-top">
+        <div class="group-heading">
+          <div class="group-badge-wrap">
+            <img class="group-favicon" alt="">
+            <div class="group-badge"></div>
+          </div>
+          <div class="group-head-main">
+            <div class="group-title-row">
+              <h3 class="group-title"></h3>
+              <div class="group-pills"></div>
+            </div>
+            <div class="group-meta"></div>
+          </div>
+          <div class="group-header-actions">
+            <button class="btn btn-small btn-ghost close-group-btn" aria-label="关闭这组" title="关闭这组"><svg class="ui-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 6l8 8M14 6l-8 8"></path></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="tab-list"></div>
+    </article>
+  </template>
+
+  <template id="tabTemplate">
+    <div class="tab-item">
+      <button class="tab-main">
+        <div class="tab-row">
+          <img class="tab-favicon" alt="">
+          <div class="tab-text">
+            <div class="tab-title"></div>
+            <div class="tab-url"></div>
+          </div>
+        </div>
+      </button>
+      <div class="tab-actions">
+        <button class="icon-btn icon-only-btn save-btn" title="保存到稍后处理" aria-label="保存到稍后处理"><svg class="row-action-icon row-action-icon-bookmark" viewBox="0 0 20 20" aria-hidden="true"><path d="M6.5 4.5h7a1 1 0 0 1 1 1v10.2l-4.5-2.8-4.5 2.8V5.5a1 1 0 0 1 1-1Z"></path></svg></button>
+        <button class="icon-btn icon-only-btn close-btn" title="关闭标签" aria-label="关闭标签"><svg class="row-action-icon row-action-icon-close" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 7l6 6M13 7l-6 6"></path></svg></button>
+      </div>
+    </div>
+  </template>
+
+  <template id="savedTemplate">
+    <div class="saved-item">
+      <a class="saved-link" target="_blank" rel="noreferrer noopener"></a>
+      <div class="saved-actions">
+        <button class="icon-btn icon-only-btn reopen-btn" title="打开" aria-label="打开"><svg class="row-action-icon row-action-icon-open" viewBox="0 0 20 20" aria-hidden="true"><path d="M8 12l5-5"></path><path d="M9 6h4v4"></path><path d="M6.5 8.5v5h5"></path></svg></button>
+        <button class="icon-btn icon-only-btn remove-saved-btn" title="移除" aria-label="移除"><svg class="row-action-icon row-action-icon-close" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 7l6 6M13 7l-6 6"></path></svg></button>
+      </div>
+    </div>
+  </template>
+
+  <div class="modal-shell" id="confirmModal" hidden>
+    <div class="modal-backdrop" data-close-modal></div>
+    <section class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle" aria-describedby="confirmModalBody">
+      <div class="confirm-modal-head">
+        <h3 id="confirmModalTitle"></h3>
+        <button class="btn btn-small btn-ghost modal-close-btn" id="confirmModalCloseBtn" type="button" aria-label="关闭"><svg class="ui-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 6l8 8M14 6l-8 8"></path></svg></button>
+      </div>
+      <div class="confirm-modal-body" id="confirmModalBody"></div>
+      <div class="confirm-modal-actions">
+        <button class="btn btn-small btn-ghost" id="confirmModalCancelBtn" type="button">取消</button>
+        <button class="btn btn-small btn-danger-soft" id="confirmModalConfirmBtn" type="button">确定</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="mini-toast" id="miniToast" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
