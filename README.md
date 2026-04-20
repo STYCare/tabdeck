@@ -1,69 +1,96 @@
 # Tab Deck
 
-Are your tabs so squashed they look like a barcode? Is your laptop fan sounding like a jet engine about to take off? Stop the madness.
+> Are your tabs so squashed they look like a barcode? Is your laptop fan sounding like a jet engine about to take off? Stop the madness.
 
-**Tab Deck** turns tab chaos into a calm, lightweight dashboard. It groups your open tabs by site, helps you clean up duplicates, lets you save things for later, and gives your poor RAM a fighting chance.
+Tab Deck turns tab chaos into a calm, lightweight dashboard. It groups your open tabs by site, helps you clean up duplicates, lets you save things for later, and gives your poor RAM a fighting chance.
 
-## What it does
+No server, no npm, no build step. Just load the extension and go.
 
-- Replaces the default new tab page with a grouped tab dashboard
-- Groups your open tabs by domain
-- Lets you clean duplicate tabs in one tap
-- Saves tabs to **Read Later**
-- Reopens or removes saved tabs
-- Searches open tabs or opens a URL directly
-- Supports editable Quick Links
-- Uses a lightweight in-page modal for destructive actions
-- Switches between Chinese and English UI copy based on browser language
+---
 
-## Why it exists
+## 🚀 What it does
+
+- **Calm Dashboard** — Replaces the default new tab page with a cleaner view of your open tabs.
+- **Domain Grouping** — Automatically groups tabs by site for faster scanning and navigation.
+- **One-Tap Cleanup** — Spot and close duplicate tabs in one tap.
+- **Read Later** — Save interesting tabs for later without keeping them open.
+- **Quick Search** — Search open tabs or jump straight to a URL from the keyboard.
+- **Quick Links** — Keep your most-used tools one click away.
+- **Bilingual Support** — Automatically switches between English and Chinese based on browser language.
+- **Lightweight Interactions** — Keeps actions fast without jarring system popups.
+
+## 🧠 Why it exists
 
 Because twenty tiny tabs are not a workflow. They are a cry for help.
 
-Tab Deck is built for people who keep a lot open, forget what is already open, open the same thing three times, and then wonder why the machine sounds mildly offended.
+Tab Deck is built for people who keep too much open, forget what is already there, open the same thing three times, and then wonder why their machine sounds mildly offended.
 
-## Browser support
+## 💻 Browser Support
 
-Currently tested on Chromium-based browsers that support:
-
-- Manifest V3 extensions
-- `chrome_url_overrides.newtab`
-- loading unpacked extensions in developer mode
-
-Recommended:
+Currently tested on:
 
 - Chrome
-- Edge
 
-Other Chromium browsers may work too, but browser policies around new-tab overrides can be annoyingly inconsistent.
+Other Chromium-based browsers may also work, but they are not officially tested yet.
 
-## Install locally
+## 🛠️ Manual Setup
 
-### Chrome / Edge
+### 1. Clone the repo
 
-1. Open the browser extension page:
-   - Chrome: `chrome://extensions`
-   - Edge: `edge://extensions`
-2. Turn on **Developer mode**
-3. Click **Load unpacked**
-4. Select the `extension/` folder in this repository
+```bash
+git clone https://github.com/STYCare/tabdeck.git
+cd tabdeck
+```
 
-## Project structure
+### 2. Load the Chrome extension
+
+Open Chrome and go to:
+
+```text
+chrome://extensions
+```
+
+Then:
+
+- Enable **Developer mode** (top-right toggle)
+- Click **Load unpacked**
+- Navigate to the `extension/` folder inside the cloned repo
+- Select that `extension/` folder
+
+### 3. Open a new tab
+
+Open a new tab in Chrome.
+
+You should see **Tab Deck** replace the default new tab page.
+
+## ⚡ Quick Start
+
+Once installed, Tab Deck helps you:
+
+- scan all open tabs by domain
+- jump back to an already-open page
+- close duplicate tabs quickly
+- save tabs to **Read Later**
+
+## 📦 Release Artifact
+
+- `dist/tabdeck-extension.zip`
+
+## 📂 Project Structure
 
 ```text
 tabdeck/
-  README.md
-  extension/
-    manifest.json
-    background.js
-    index.html
-    app.js
-    style.css
-    icons/
-  dist/
+├── extension/
+│   ├── manifest.json
+│   ├── background.js
+│   ├── index.html
+│   ├── app.js
+│   └── style.css
+├── dist/
+└── README.md
 ```
 
-## Privacy
+## 🔒 Privacy
 
 Tab Deck does not require login, does not connect to a backend, and does not upload tab data.
 
@@ -72,19 +99,6 @@ It only uses:
 - `chrome.storage.local`
 - current browser tab information
 
-## Acknowledgements
+## 🙏 Acknowledgements
 
 Tab Deck was inspired by **tab-out** by **Zara Zhang**, and built and iterated with **OpenClaw**.
-
-## Release artifacts
-
-Generated test packages are placed in `dist/`:
-
-- `tabdeck-extension.zip` — extension files only
-- `tabdeck-package.zip` — README + extension folder for easy manual installation
-
-## Current status
-
-Current version: `1.0.0`
-
-This repository is currently set up for GitHub publishing and manual tester distribution.
