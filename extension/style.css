@@ -140,36 +140,36 @@ button { cursor: pointer; }
   height: 16px;
 }
 
-.tab-actions .ui-icon,
-.saved-actions .ui-icon {
+.row-action-icon {
   width: 16px;
   height: 16px;
   display: block;
-  opacity: 1;
-  color: currentColor;
-  stroke-width: 2.2;
+  overflow: visible;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
-.tab-actions .save-btn .ui-icon,
-.saved-actions .reopen-btn .ui-icon {
+.row-action-icon-save {
   width: 17px;
   height: 17px;
 }
 
-.tab-actions .ui-icon-solid circle,
-.saved-actions .ui-icon-solid circle {
-  opacity: 0.2;
+.row-action-icon-save circle {
+  fill: currentColor;
+  opacity: 0.16;
+  stroke: none;
 }
 
-.text-icon-btn {
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1;
-  color: currentColor;
+.row-action-icon-save path {
+  stroke-width: 2.15;
 }
 
-.save-btn.text-icon-btn {
-  font-size: 13px;
+.row-action-icon-open {
+  width: 17px;
+  height: 17px;
 }
 
 .searchbox {
