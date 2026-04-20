@@ -54,6 +54,7 @@ const DICTS = {
     quickLinksPrompt: '按“名称,网址”每行一条，例如\nGoogle,https://www.google.com',
     quickLinksSaved: '快捷入口已更新',
     quickLinksReset: '已恢复默认快捷入口',
+    dedupeDone: (count) => `已清理 ${count} 个重复标签`,
     keepOnlyPrompt: (count) => `你现在开着 <strong>${count}</strong> 个 TabDeck 页面。要只保留这一个吗？`,
     keepOnlyAction: '关闭其他 TabDeck'
   },
@@ -93,6 +94,7 @@ const DICTS = {
     quickLinksPrompt: 'One per line as “name,url”, for example:\nGoogle,https://www.google.com',
     quickLinksSaved: 'Quick links updated',
     quickLinksReset: 'Quick links reset to defaults',
+    dedupeDone: (count) => `Cleared ${count} duplicate tab${count === 1 ? '' : 's'}`,
     keepOnlyPrompt: (count) => `You have <strong>${count}</strong> TabDeck pages open. Keep just this one?`,
     keepOnlyAction: 'Close Extras'
   }
@@ -105,6 +107,7 @@ let activeSuggestionIndex = -1;
 let currentLang = 'zh';
 let t = DICTS.zh;
 let currentKeepOnlyGroup = null;
+let miniToastTimer = null;
 const CURRENT_NEW_TAB_URL = chrome.runtime.getURL('index.html');
 
 function detectLang() {
@@ -683,6 +686,7 @@ async function renderGroups(tabs) {
       duplicatePill.innerHTML = `${escapeHtml(t.duplicateCount(duplicateInfo.duplicateCount))}<span class="group-pill-close" aria-hidden="true">×</span>`;
       duplicatePill.addEventListener('click', async () => {
         await closeTabs(duplicateInfo.duplicateIds);
+        showMiniToast(t.dedupeDone(duplicateInfo.duplicateCount));
         await render();
       });
       pillsWrap.appendChild(duplicatePill);
@@ -874,6 +878,21 @@ async function resetQuickLinks() {
 function toggleMoreLinksMenu() {
   const menu = document.getElementById('quickLinksMoreMenu');
   menu.classList.toggle('show');
+}
+
+function showMiniToast(message) {
+  const node = document.getElementById('miniToast');
+  if (!node || !message) return;
+  node.textContent = message;
+  node.hidden = false;
+  requestAnimationFrame(() => node.classList.add('show'));
+  if (miniToastTimer) clearTimeout(miniToastTimer);
+  miniToastTimer = setTimeout(() => {
+    node.classList.remove('show');
+    setTimeout(() => {
+      node.hidden = true;
+    }, 180);
+  }, 1200);
 }
 
 async function keepOnlyCurrentGroup() {

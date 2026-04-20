@@ -920,6 +920,33 @@ mark {
   fill: currentColor;
 }
 
+.mini-toast {
+  position: fixed;
+  top: 26px;
+  right: 32px;
+  z-index: 30;
+  min-width: 0;
+  max-width: min(320px, calc(100vw - 32px));
+  padding: 9px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(219, 205, 193, 0.46);
+  background: rgba(252, 248, 243, 0.92);
+  color: var(--text-strong);
+  box-shadow: 0 10px 24px rgba(176, 160, 148, 0.12);
+  backdrop-filter: blur(12px);
+  font-size: 12px;
+  line-height: 1.35;
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.mini-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .saved-strip-meta {
   display: flex;
   align-items: center;
