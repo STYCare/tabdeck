@@ -99,6 +99,10 @@ It only uses:
 - `chrome.storage.local`
 - current browser tab information
 
+## 📄 License
+
+MIT
+
 ## 🙏 Acknowledgements
 
 Tab Deck was inspired by **tab-out** by **Zara Zhang**, and built and iterated with **OpenClaw**.
