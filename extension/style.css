@@ -68,55 +68,9 @@ button { cursor: pointer; }
 }
 
 .zara-hero {
-  padding: 2px 0 18px;
+  padding: 4px 0 18px;
   border-bottom: 1px solid var(--line);
   margin-bottom: 18px;
-}
-
-.brandbar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-.brand-mark {
-  width: 30px;
-  height: 30px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.58);
-  border: 1px solid rgba(219, 205, 193, 0.58);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.72);
-  color: var(--text-strong);
-}
-
-.brand-mark-icon {
-  width: 16px;
-  height: 16px;
-  display: block;
-  fill: currentColor;
-}
-
-.brand-copy {
-  min-width: 0;
-}
-
-.brand-title {
-  font-size: 18px;
-  line-height: 1.05;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: #413932;
-}
-
-.brand-subtitle {
-  margin-top: 2px;
-  font-size: 12px;
-  line-height: 1.35;
-  color: rgba(92, 85, 78, 0.72);
 }
 
 .topbar {
@@ -489,18 +443,17 @@ mark {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  padding: 8px 0 14px;
+  padding: 10px 0 14px;
   border-bottom: 1px solid rgba(176, 160, 146, 0.12);
   margin-bottom: 18px;
 }
 
 
 .zara-section-title {
-  font-size: 13px;
-  color: rgba(92, 85, 78, 0.88);
-  font-weight: 650;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
+  font-size: 15px;
+  color: var(--text-strong);
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 .zara-toolbar-right {
@@ -512,9 +465,9 @@ mark {
 }
 
 .zara-meta {
-  font-size: 11px;
-  color: rgba(155, 144, 133, 0.9);
-  margin-right: 4px;
+  font-size: 12px;
+  color: var(--muted);
+  margin-right: 2px;
 }
 
 .btn, .icon-btn {
@@ -562,22 +515,20 @@ mark {
   break-inside: avoid;
   -webkit-column-break-inside: avoid;
   margin: 0 0 14px;
-  border-radius: 12px;
-  border: 1px solid rgba(219, 209, 199, 0.82);
-  box-shadow: 0 4px 14px rgba(176, 160, 148, 0.05);
+  border-radius: 10px;
+  border: 1px solid rgba(219, 209, 199, 0.72);
+  box-shadow: var(--shadow-card);
 }
 
 .zara-group-card {
   padding: 14px;
-  background: rgba(250, 245, 239, 0.72);
-  backdrop-filter: blur(8px);
-  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease, border-color 180ms ease;
+  background: var(--surface);
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
 }
 
 .zara-group-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(219, 209, 199, 0.96);
-  box-shadow: 0 12px 24px rgba(176, 160, 148, 0.1);
+  box-shadow: 0 10px 24px rgba(176, 160, 148, 0.12);
 }
 
 .zara-group-card:hover .tab-item {
@@ -655,9 +606,8 @@ mark {
 .group-title {
   margin: 0;
   font-size: 14px;
-  color: #433a34;
-  font-weight: 650;
-  line-height: 1.25;
+  color: var(--text-strong);
+  line-height: 1.3;
 }
 
 .group-pills {
@@ -686,10 +636,9 @@ mark {
 }
 
 .group-meta {
-  margin-top: 3px;
-  font-size: 10px;
-  color: rgba(155, 144, 133, 0.94);
-  letter-spacing: 0.01em;
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--muted);
 }
 
 .tab-list {
@@ -704,15 +653,12 @@ mark {
   grid-template-columns: 1fr auto;
   gap: 8px;
   align-items: center;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.18);
-  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.16);
   transition: background 160ms ease, transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
 }
 
 .tab-item:hover {
   background: rgba(255,255,255,0.62);
-  border-color: rgba(255,255,255,0.52);
   transform: translateX(2px);
   box-shadow: 0 4px 12px rgba(176, 160, 148, 0.08);
 }
@@ -761,10 +707,10 @@ mark {
 
 .tab-title,
 .saved-link {
-  color: #453d37;
+  color: var(--text-strong);
   text-decoration: none;
   font-size: 13px;
-  font-weight: 560;
+  font-weight: 500;
   line-height: 1.35;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -782,9 +728,9 @@ mark {
 }
 
 .tab-url {
-  margin-top: 3px;
-  font-size: 10px;
-  color: rgba(155, 144, 133, 0.94);
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
