@@ -1,24 +1,30 @@
 # Tab Deck
 
-Tab Deck is a calm Chrome new-tab extension that turns your open tabs into a lightweight dashboard.
+Are your tabs so squashed they look like a barcode? Is your laptop fan sounding like a jet engine about to take off? Stop the madness.
 
-It groups tabs by site so you can quickly scan what is already open, clean up duplicates, save tabs for later, and jump back into context without tab chaos.
+**Tab Deck** turns tab chaos into a calm, lightweight dashboard. It groups your open tabs by site, helps you clean up duplicates, lets you save things for later, and gives your poor RAM a fighting chance.
 
-## Features
+## What it does
 
-- Replace the default new tab page with a grouped tab dashboard
-- Group open tabs by domain
-- One-tap duplicate cleanup inside each group
-- Save tabs to **Read Later**
-- Reopen or remove saved tabs
-- Search open tabs or type a URL directly
-- Editable Quick Links
-- Lightweight in-page confirmation modal for destructive actions
-- Chinese and English UI copy
+- Replaces the default new tab page with a grouped tab dashboard
+- Groups your open tabs by domain
+- Lets you clean duplicate tabs in one tap
+- Saves tabs to **Read Later**
+- Reopens or removes saved tabs
+- Searches open tabs or opens a URL directly
+- Supports editable Quick Links
+- Uses a lightweight in-page modal for destructive actions
+- Switches between Chinese and English UI copy based on browser language
+
+## Why it exists
+
+Because twenty tiny tabs are not a workflow. They are a cry for help.
+
+Tab Deck is built for people who keep a lot open, forget what is already open, open the same thing three times, and then wonder why the machine sounds mildly offended.
 
 ## Browser support
 
-Currently tested for Chromium-based browsers that support:
+Currently tested on Chromium-based browsers that support:
 
 - Manifest V3 extensions
 - `chrome_url_overrides.newtab`
@@ -29,9 +35,9 @@ Recommended:
 - Chrome
 - Edge
 
-Other Chromium browsers may work, but compatibility can vary depending on extension policy and new-tab override support.
+Other Chromium browsers may work too, but browser policies around new-tab overrides can be annoyingly inconsistent.
 
-## Local install
+## Install locally
 
 ### Chrome / Edge
 
@@ -45,7 +51,7 @@ Other Chromium browsers may work, but compatibility can vary depending on extens
 ## Project structure
 
 ```text
-qingye/
+tabdeck/
   README.md
   extension/
     manifest.json
@@ -61,20 +67,24 @@ qingye/
 
 Tab Deck does not require login, does not connect to a backend, and does not upload tab data.
 
-The extension only uses:
+It only uses:
 
 - `chrome.storage.local`
 - current browser tab information
+
+## Acknowledgements
+
+Tab Deck was inspired by **tab-out** by **Zara Zhang**, and built and iterated with **OpenClaw**.
 
 ## Release artifacts
 
 Generated test packages are placed in `dist/`:
 
 - `tabdeck-extension-only.zip` — extension files only
-- `qingye-offline-test.zip` — README + extension folder for sharing with testers
+- `tabdeck-offline-test.zip` — README + extension folder for sharing with testers
 
-## Status
+## Current status
 
 Current version: `0.1.0`
 
-This repository is currently prepared for GitHub publishing and manual tester distribution.
+This repository is currently set up for GitHub publishing and manual tester distribution.
