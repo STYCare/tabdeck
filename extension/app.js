@@ -7,7 +7,7 @@ const MAX_SAVED_ITEMS = 6;
 const MAX_SEARCH_RESULTS = 6;
 const GROUP_TONES = ['tone-sage', 'tone-cream', 'tone-mist'];
 const BRAND = {
-  zh: '清页',
+  zh: 'TabDeck',
   en: 'TabDeck'
 };
 const DEFAULT_QUICK_LINKS = [
@@ -56,13 +56,13 @@ const DICTS = {
     quickLinksPrompt: '按“名称,网址”每行一条，例如\nGoogle,https://www.google.com',
     quickLinksSaved: '快捷入口已更新',
     quickLinksReset: '已恢复默认快捷入口',
-    keepOnlyPrompt: (count) => `你现在开着 <strong>${count}</strong> 个清页页面。要只保留这一个吗？`,
-    keepOnlyAction: '关闭其他清页'
+    keepOnlyPrompt: (count) => `你现在开着 <strong>${count}</strong> 个 TabDeck 页面。要只保留这一个吗？`,
+    keepOnlyAction: '关闭其他 TabDeck'
   },
   en: {
     searchPlaceholder: 'Search open tabs, the web, or enter a URL',
     searchButton: 'Search',
-    currentTabs: 'Tab Deck',
+    currentTabs: 'TabDeck',
     refresh: 'Refresh',
     dedupeGroup: (count) => `Close ${count} duplicate${count === 1 ? '' : 's'}`,
     duplicateCount: (count) => `${count} duplicate${count === 1 ? '' : 's'}`,
