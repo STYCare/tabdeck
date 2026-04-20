@@ -28,6 +28,8 @@ const DICTS = {
     closeAll: '全部关闭',
     confirmTitleCloseAll: '关闭全部标签',
     confirmBodyCloseAll: (count) => `将关闭当前全部 ${count} 个网页标签。<br><br>这是不可撤销操作。`,
+    confirmTitleDedupeGroup: '关闭重复标签',
+    confirmBodyDedupeGroup: (count) => `将关闭这一组里 <strong>${count}</strong> 个重复标签，并为每个页面保留 1 个。<br><br>这是不可撤销操作。`,
     cancel: '取消',
     confirm: '确定',
     saved: '稍后处理',
@@ -67,6 +69,8 @@ const DICTS = {
     closeAll: 'Close All',
     confirmTitleCloseAll: 'Close All Tabs',
     confirmBodyCloseAll: (count) => `This will close all ${count} open web tabs.<br><br>This cannot be undone.`,
+    confirmTitleDedupeGroup: 'Close Duplicate Tabs',
+    confirmBodyDedupeGroup: (count) => `This will close <strong>${count}</strong> duplicate tabs in this group and keep one copy of each page.<br><br>This cannot be undone.`,
     cancel: 'Cancel',
     confirm: 'Continue',
     saved: 'Read Later',
@@ -682,11 +686,11 @@ async function renderGroups(tabs) {
       duplicatePill.setAttribute('aria-label', t.dedupeGroup(duplicateInfo.duplicateCount));
       duplicatePill.innerHTML = `${escapeHtml(t.duplicateCount(duplicateInfo.duplicateCount))}<span class="group-pill-close" aria-hidden="true">×</span>`;
       duplicatePill.addEventListener('click', async () => {
-        const confirmed = window.confirm(
-          currentLang === 'zh'
-            ? `将关闭这一组里 ${duplicateInfo.duplicateCount} 个重复标签，并保留每个页面 1 个。\n\n确定继续吗？`
-            : `This will close ${duplicateInfo.duplicateCount} duplicate tabs in this group and keep one copy of each page.\n\nContinue?`
-        );
+        const confirmed = await openConfirmModal({
+          title: t.confirmTitleDedupeGroup,
+          bodyHtml: t.confirmBodyDedupeGroup(duplicateInfo.duplicateCount),
+          confirmText: t.confirm
+        });
         if (!confirmed) return;
         await closeTabs(duplicateInfo.duplicateIds);
         await render();
