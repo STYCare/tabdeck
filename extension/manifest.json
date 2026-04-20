@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "TabDeck",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "TabDeck is a Chrome new-tab extension for organizing open tabs into a calm dashboard.",
   "permissions": ["tabs", "storage"],
   "chrome_url_overrides": {

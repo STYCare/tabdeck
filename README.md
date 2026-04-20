@@ -80,11 +80,11 @@ Tab Deck was inspired by **tab-out** by **Zara Zhang**, and built and iterated w
 
 Generated test packages are placed in `dist/`:
 
-- `tabdeck-extension-only.zip` — extension files only
-- `tabdeck-offline-test.zip` — README + extension folder for sharing with testers
+- `tabdeck-extension.zip` — extension files only
+- `tabdeck-package.zip` — README + extension folder for easy manual installation
 
 ## Current status
 
-Current version: `0.1.0`
+Current version: `1.0.0`
 
 This repository is currently set up for GitHub publishing and manual tester distribution.
