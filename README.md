@@ -1,6 +1,6 @@
 # Tab Deck
 
-> Are your tabs so squashed they look like a barcode? Is your laptop fan sounding like a jet engine about to take off? Stop the madness.
+> Are your tabs so squashed they look like a barcode? Is your laptop fan sounding like a jet engine about to take off? Stop the madness. Use this extension to turn that tab chaos into a zen dashboard. Save your RAM, and your sanity!
 
 Tab Deck turns tab chaos into a calm, lightweight dashboard. It groups your open tabs by site, helps you clean up duplicates, lets you save things for later, and gives your poor RAM a fighting chance.
 
