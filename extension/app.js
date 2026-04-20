@@ -7,8 +7,8 @@ const MAX_SAVED_ITEMS = 6;
 const MAX_SEARCH_RESULTS = 6;
 const GROUP_TONES = ['tone-sage', 'tone-cream', 'tone-mist'];
 const BRAND = {
-  zh: 'TabDeck',
-  en: 'TabDeck'
+  zh: 'Tab Deck',
+  en: 'Tab Deck'
 };
 const DEFAULT_QUICK_LINKS = [
   { name: 'Google', url: 'https://www.google.com' },
@@ -55,13 +55,13 @@ const DICTS = {
     quickLinksSaved: '快捷入口已更新',
     quickLinksReset: '已恢复默认快捷入口',
     dedupeDone: (count) => `已清理 ${count} 个重复标签`,
-    keepOnlyPrompt: (count) => `你现在开着 <strong>${count}</strong> 个 TabDeck 页面。要只保留这一个吗？`,
-    keepOnlyAction: '关闭其他 TabDeck'
+    keepOnlyPrompt: (count) => `你现在开着 <strong>${count}</strong> 个 Tab Deck 页面。要只保留这一个吗？`,
+    keepOnlyAction: '关闭其他 Tab Deck'
   },
   en: {
     searchPlaceholder: 'Search open tabs, the web, or enter a URL',
     searchButton: 'Search',
-    currentTabs: 'TabDeck',
+    currentTabs: 'Tab Deck',
     refresh: 'Refresh',
     dedupeGroup: (count) => `Close ${count} duplicate${count === 1 ? '' : 's'}`,
     duplicateCount: (count) => `${count} duplicate${count === 1 ? '' : 's'}`,
@@ -95,7 +95,7 @@ const DICTS = {
     quickLinksSaved: 'Quick links updated',
     quickLinksReset: 'Quick links reset to defaults',
     dedupeDone: (count) => `Cleared ${count} duplicate tab${count === 1 ? '' : 's'}`,
-    keepOnlyPrompt: (count) => `You have <strong>${count}</strong> TabDeck pages open. Keep just this one?`,
+    keepOnlyPrompt: (count) => `You have <strong>${count}</strong> Tab Deck pages open. Keep just this one?`,
     keepOnlyAction: 'Close Extras'
   }
 };
